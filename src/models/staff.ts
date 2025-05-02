@@ -1,8 +1,6 @@
 'use strict';
 
-import { DataTypes, Sequelize } from "sequelize";
-const { Model} = require('sequelize');
-import db from '.'
+import { Sequelize,Model } from "sequelize";
 
 module.exports = (sequelize:Sequelize, DataTypes:any) => {
   class staff extends Model {

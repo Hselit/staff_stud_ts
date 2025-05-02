@@ -6,36 +6,48 @@ interface AuthenticateRequest extends Request{
    user?:JwtPayload
 }
 
-const verifyToken = (req:AuthenticateRequest, res:Response, next:NextFunction):Response | void => {
+const verifyToken = (req:AuthenticateRequest, res:Response, next:NextFunction): void => {
    const token = req.headers["authorization"];
 
    console.log("Token Received:", token);
 
    if (!token) {
-       return res.status(401).json({ message: "Authentication Required: No token provided" });
+       res.status(401).json({ message: "Authentication Required: No token provided" });
+       return;
    }
 
    try {
        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
        if (typeof decoded === 'string') {
-          return res.status(401).json({ message: "Unauthorized: Invalid token structure" });
+          res.status(401).json({ message: "Unauthorized: Invalid token structure" });
+          return;
          }
          req.user = decoded;
          console.log("Verified Successfully:", decoded);
        next();
    } catch (error) {
-       return res.status(401).json({ message: "Unauthorized: Invalid Token" });
+        res.status(401).json({ message: "Unauthorized: Invalid Token" });
+        return;
    }
 };
 
-const roleMiddleware = (allowedRoles:string[])=>{
-   return (req:AuthenticateRequest,res:Response,next:NextFunction) =>{
+const roleMiddleware = (req:AuthenticateRequest,res:Response,next:NextFunction) :void=>{
       const user = req.user as JwtPayload;
-      if(!user || !allowedRoles.includes(user.role)){
-         return res.status(401).json({message:"Forbidden:Access Denied"});
+      if(!user || !["Admin"].includes(user.role)){
+         res.status(401).json({message:"Forbidden:Access Denied"});
+         return;
       }
       next();
-   }
-}
+   };
 
-module.exports = {roleMiddleware,verifyToken};
+// const roleMiddleware = (allowedRoles:string[])=>{
+//    return (req:AuthenticateRequest,res:Response,next:NextFunction) =>{
+//       const user = req.user as JwtPayload;
+//       if(!user || !allowedRoles.includes(user.role)){
+//          return res.status(401).json({message:"Forbidden:Access Denied"});
+//       }
+//       next();
+//    }
+// }
+
+export {roleMiddleware,verifyToken};

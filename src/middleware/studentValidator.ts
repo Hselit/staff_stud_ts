@@ -1,4 +1,4 @@
-const { param,body,validationResult} = require('express-validator');
+import { param,body,validationResult} from 'express-validator';
 import {Request,Response,NextFunction} from 'express';
 
 const validateStudentCreate = [
@@ -103,10 +103,16 @@ const validateStudentLogin = [
       .notEmpty().withMessage("Password is required")
       .isLength({min:8}).withMessage("Password length must be greater than 8 characters"),
 
-   body('role')
-      .trim()
-      .optional()
-      .notEmpty().withMessage("Role is required"),
+   // body('role')
+   //    .trim()
+   //    .optional()
+   //    .notEmpty().withMessage("Role is required")
+   //    .custom((value:string) => {
+   //       if (/\d/.test(value)) {
+   //         throw new Error("Staff name cannot contain numbers");
+   //       }
+   //       return true;
+   //    }),
 
    handleValidationError
 ];
@@ -119,4 +125,4 @@ function handleValidationError(req:Request,res:Response,next:NextFunction){
    next();
 }
 
-module.exports = { validateStudentId,validateStudentCreate,validateStudentUpdate,validateStudentLogin }
+export { validateStudentId,validateStudentCreate,validateStudentUpdate,validateStudentLogin }

@@ -1,13 +1,13 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+import express from 'express';
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import logger from 'morgan';
 
-var indexRouter = require('./routes/index');
-var staffRouter = require('./routes/staff');
-var studentRoutes = require('./routes/student');
+import indexRouter from './routes/index';
+import staffRouter from './routes/staff';
+import studentRoutes from './routes/student';
 
-var app = express();
+const app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -20,4 +20,4 @@ app.use('/', indexRouter);
 app.use('/staff', staffRouter);
 app.use('/student',studentRoutes);
 
-module.exports = app;
+export default app;

@@ -1,8 +1,8 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-const { Model } = require('sequelize');
+const sequelize_1 = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-    class staff extends Model {
+    class staff extends sequelize_1.Model {
         static associate(models) {
             staff.hasMany(models.student, {
                 foreignKey: 'staff_id'

@@ -3,18 +3,23 @@
 /**
  * Module dependencies.
  */
-var app = require('../app');
-var debug = require('debug')('student-management:server');
-var http = require('http');
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const app_1 = __importDefault(require("../app"));
+const debug_1 = __importDefault(require("debug"));
+const http_1 = __importDefault(require("http"));
+var debug = (0, debug_1.default)('student-management:server');
 /**
  * Get port from environment and store in Express.
  */
 var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+app_1.default.set('port', port);
 /**
  * Create HTTP server.
  */
-var server = http.createServer(app);
+var server = http_1.default.createServer(app_1.default);
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -65,8 +70,13 @@ function onError(error) {
  */
 function onListening() {
     var addr = server.address();
+    if (!addr) {
+        console.error('Server address is null');
+        return;
+    }
     var bind = typeof addr === 'string'
         ? 'pipe ' + addr
         : 'port ' + addr.port;
     debug('Listening on ' + bind);
+    console.log(`Server is listening on ${bind}`);
 }

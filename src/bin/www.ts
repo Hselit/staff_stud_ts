@@ -4,10 +4,11 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('student-management:server');
-var http = require('http');
+import app from '../app';
+import debugg from 'debug';
+import http from 'http';
 
+var debug = debugg('student-management:server');
 /**
  * Get port from environment and store in Express.
  */
@@ -83,8 +84,15 @@ function onError(error:NodeJS.ErrnoException) {
 
 function onListening() {
   var addr = server.address();
+  
+  if (!addr) {
+    console.error('Server address is null');
+    return;
+  }
+
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  console.log(`Server is listening on ${bind}`);
 }
