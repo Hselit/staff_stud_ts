@@ -10,7 +10,7 @@ The **Staff_Student_Management_API** is a robust backend system designed to mana
 
 All API endpoints, sample responses, and test cases are documented in Postman:
 
-🔗 [View Postman Collection](https://backend-1075.postman.co/workspace/Staff_Stud~7ccb60a4-bc9e-472d-b21a-74d4bace8b35/collection/31553102-96ad7e05-b840-44a6-b4db-a538ec8c9055)
+🔗 [View Postman Collection](https://www.postman.com/backend-1075/api/collection/o4qmc7m/staff-student-management)
 
 <br>
 
