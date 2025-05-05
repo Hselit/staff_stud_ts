@@ -1,13 +1,13 @@
-import multer, { FileFilterCallback } from 'multer';
-import path from 'path';
-import { Request } from 'express';
+import multer, { FileFilterCallback } from "multer";
+import path from "path";
+import { Request } from "express";
 // import js from '../../'
 const storage = multer.diskStorage({
   destination: function (req: Request, file: Express.Multer.File, cb) {
-    cb(null, './uploads/');
+    cb(null, "./uploads/");
   },
   filename: function (req: Request, file: Express.Multer.File, cb) {
-     console.log('Multer received file:', file);
+    console.log("Multer received file:", file);
     const name = `${Date.now()}-${file.originalname}`;
     cb(null, name);
   },
@@ -20,7 +20,7 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallb
   if (allowedTypes.test(ext)) {
     cb(null, true);
   } else {
-    cb(new Error('Only jpeg, png, jpg images are allowed'));
+    cb(new Error("Only jpeg, png, jpg images are allowed"));
   }
 };
 

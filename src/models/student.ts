@@ -1,57 +1,58 @@
-'use strict';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use strict";
 
-import { Sequelize,Model } from "sequelize";
+import { Sequelize, Model } from "sequelize";
 
-module.exports = (sequelize:Sequelize, DataTypes:any) => {
+module.exports = (sequelize: Sequelize, DataTypes: any) => {
   class student extends Model {
-  
-    static associate(models: { staff: any; }) {
-      student.belongsTo(models.staff,{
-        foreignKey:'staff_id'
+    static associate(models: { staff: any }) {
+      student.belongsTo(models.staff, {
+        foreignKey: "staff_id",
       });
     }
   }
-  student.init({
-    id:{
-      type:DataTypes.INTEGER,
-      primaryKey:true,
-      allowNull:false,
-      autoIncrement:true,
+  student.init(
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        allowNull: false,
+        autoIncrement: true,
+      },
+      studentName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      marks: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      age: {
+        type: DataTypes.INTEGER,
+        defaultValue: 18,
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      profile: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      staff_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "staff",
+          key: "id",
+        },
+      },
     },
-    studentName: {
-      type:DataTypes.STRING,
-      allowNull:false,
-    },
-    marks: {
-      type:DataTypes.INTEGER,
-      allowNull:false
-    },
-    age:{
-      type:DataTypes.INTEGER,
-      defaultValue:18
-    },
-    password:{
-      type:DataTypes.STRING,
-      allowNull:false
-    },
-    profile:{
-      type:DataTypes.STRING,
-      allowNull:true
-    },
-    staff_id:{
-      type:DataTypes.INTEGER,
-      references:{
-        model:'staff',
-        key:'id'
-      }
+    {
+      sequelize,
+      modelName: "student",
+      tableName: "students",
+      timestamps: false,
     }
-
-  }, {
-    sequelize,
-    modelName: 'student',
-    tableName:"students",
-    timestamps:false
-
-  });
+  );
   return student;
 };

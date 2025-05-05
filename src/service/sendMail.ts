@@ -1,43 +1,42 @@
-import nodemailer, { Transporter } from 'nodemailer';
-import dotenv from 'dotenv';
-import Mail from 'nodemailer/lib/mailer';
-import { MailOptions } from 'nodemailer/lib/json-transport';
-import { readCsvFile } from './readcsv';
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+import Mail from "nodemailer/lib/mailer";
+import { MailOptions } from "nodemailer/lib/json-transport";
 
 dotenv.config();
 
 const transporter: Mail = nodemailer.createTransport({
-   service:"gmail",
-   host:process.env.MAIL_HOST,
-   // port:process.env.MAIL_PORT,
-   secure:false,
-   auth:{
-      user:process.env.MAIL_USER,
-      pass:process.env.MAIL_PASS,
-   }
+  service: "gmail",
+  host: process.env.MAIL_HOST,
+  // port:process.env.MAIL_PORT,
+  secure: false,
+  auth: {
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
+  },
 });
 
-const mailOptions:MailOptions = {
-   from:"tilesh162003@gmail.com",
-   to:"gojomoc753@firain.com",
-   subject:"This is a test Mail",
-   text:"this is a text",
-   attachments:[
-    {
-      filename:'readcsv.ts',
-      path:"./src/service/readcsv.ts"
-    }
-   ]
-}
+// const mailOptions:MailOptions = {
+//    from:"tilesh162003@gmail.com",
+//    to:"gojomoc753@firain.com",
+//    subject:"This is a test Mail",
+//    text:"this is a text",
+//    attachments:[
+//     {
+//       filename:'readcsv.ts',
+//       path:"./src/service/readcsv.ts"
+//     }
+//    ]
+// }
 
-function sendMail(mailoptions:MailOptions){
-   transporter.sendMail(mailoptions,(error,info)=>{
-      if(error){
-         console.error(error);
-      } else{
-         console.log(info);
-      }
-   });   
+function sendMail(mailoptions: MailOptions) {
+  transporter.sendMail(mailoptions, (error, info) => {
+    if (error) {
+      console.error(error);
+    } else {
+      console.log(info);
+    }
+  });
 }
 
 export = sendMail;

@@ -1,7 +1,9 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __importDefault =
+  (this && this.__importDefault) ||
+  function (mod) {
+    return mod && mod.__esModule ? mod : { default: mod };
+  };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
@@ -11,13 +13,13 @@ const index_1 = __importDefault(require("./routes/index"));
 const staff_1 = __importDefault(require("./routes/staff"));
 const student_1 = __importDefault(require("./routes/student"));
 const app = (0, express_1.default)();
-app.use((0, morgan_1.default)('dev'));
+app.use((0, morgan_1.default)("dev"));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
 app.use((0, cookie_parser_1.default)());
 // app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, 'uploads')));
-app.use('/', index_1.default);
-app.use('/staff', staff_1.default);
-app.use('/student', student_1.default);
+app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "uploads")));
+app.use("/", index_1.default);
+app.use("/staff", staff_1.default);
+app.use("/student", student_1.default);
 exports.default = app;

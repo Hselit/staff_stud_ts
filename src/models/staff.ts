@@ -1,49 +1,52 @@
-'use strict';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use strict";
 
-import { Sequelize,Model } from "sequelize";
+import { Sequelize, Model } from "sequelize";
 
-module.exports = (sequelize:Sequelize, DataTypes:any) => {
+module.exports = (sequelize: Sequelize, DataTypes: any) => {
   class staff extends Model {
-    
-    static associate(models: { student: any; }) {
-      staff.hasMany(models.student,{
-        foreignKey:'staff_id'
+    static associate(models: { student: any }) {
+      staff.hasMany(models.student, {
+        foreignKey: "staff_id",
       });
     }
   }
 
-  staff.init({
-    id: {
-      type:DataTypes.INTEGER,
-      allowNull:false,
-      primaryKey:true,
-      autoIncrement:true
+  staff.init(
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      staffName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      role: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      experience: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
-    staffName: {
-      type:DataTypes.STRING,
-      allowNull:true
-    },
-    role: {
-      type:DataTypes.STRING,
-      allowNull:true
-    },
-    experience: {
-      type:DataTypes.INTEGER,
-      allowNull:false
-    },
-    password:{
-      type:DataTypes.STRING,
-      allowNull:false
-    },
-    email:{
-      type:DataTypes.STRING,
-      allowNull:false
-    },
-  }, {
-    sequelize,
-    modelName: 'staff',
-    tableName:'staffs',
-    timestamps:false
-  });
+    {
+      sequelize,
+      modelName: "staff",
+      tableName: "staffs",
+      timestamps: false,
+    }
+  );
   return staff;
 };
