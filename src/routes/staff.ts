@@ -4,7 +4,7 @@ const router = express.Router();
 import uploadcsv from "../middleware/csvUpload";
 import { validateStaffId, validateStaffCreate, validateStaffUpdate, validateStaffLogin,validateStaffCSV} from '../middleware/staffValidator';
 import { verifyToken, roleMiddleware } from '../middleware/auth';
-import { bulkInsertFromcsv, createStaff, deleteStaff, exportStaffData, getcsv, getStaff, getStaffById, getStudents, staffLogin, updateStaff } from "../controller/staff.controller";
+import { bulkInsertFromcsv, createStaff, deleteStaff, exportStaffData, forgotpassword, getcsv, getStaff, getStaffById, getStudents, staffLogin, updateStaff } from "../controller/staff.controller";
 
 //staff login
 router.post('/stafflogin',validateStaffLogin,staffLogin);
@@ -17,6 +17,13 @@ router.post('/csv',uploadcsv.single('csv'),verifyToken,roleMiddleware,getcsv,val
 
 //export data using csv
 router.get('/export',verifyToken,roleMiddleware,exportStaffData);
+
+router.post('/forgotpassword',forgotpassword);
+
+router.get('/passwordreset',async(req,res)=>{
+   console.log("in password verify route")
+   res.status(200).send(`<h3 style="text-align:center;">Password Reset Success</h3><br><h2 style="text-align:center;">Thank You.....</h2>`)
+});
 
 //get single staff method
 router.get('/:id',verifyToken,roleMiddleware,validateStaffId,getStaffById);
@@ -32,6 +39,5 @@ router.delete('/:id',verifyToken,roleMiddleware,validateStaffId,deleteStaff);
 
 //get staffs with students
 router.get('/getallstudent/:id',verifyToken,roleMiddleware,validateStaffId,getStudents);
-
 
 export default router;

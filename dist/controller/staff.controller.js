@@ -12,15 +12,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.exportStaffData = exports.bulkInsertFromcsv = exports.getcsv = exports.getStudents = exports.deleteStaff = exports.updateStaff = exports.createStaff = exports.getStaffById = exports.getStaff = exports.staffLogin = void 0;
+exports.forgotpassword = exports.exportStaffData = exports.bulkInsertFromcsv = exports.getcsv = exports.getStudents = exports.deleteStaff = exports.updateStaff = exports.createStaff = exports.getStaffById = exports.getStaff = exports.staffLogin = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const json2csv_1 = require("json2csv");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
+const crypto_1 = __importDefault(require("crypto"));
 const readcsv_1 = require("../service/readcsv");
 const index_1 = __importDefault(require("../models/index"));
+const sendMail_1 = __importDefault(require("../service/sendMail"));
 const { staff, student } = index_1.default;
 const staffLogin = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -216,3 +218,29 @@ const exportStaffData = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     }
 });
 exports.exportStaffData = exportStaffData;
+const forgotpassword = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email } = req.body;
+        const user = yield staff.findOne({ where: { email: email } });
+        console.log(email);
+        console.log(user);
+        if (!user) {
+            res.status(404).json({ message: "User Not Found.." });
+        }
+        const token = crypto_1.default.randomBytes(32).toString('hex');
+        const resetLink = `https://192.168.29.207:3000/staff/passwordreset?token=${token}`;
+        const MailOptions = {
+            from: process.env.MAIL_USER,
+            to: user.email,
+            subject: "Password Reset request",
+            html: `<p>For resetting your password... Click <a href="${resetLink}">here</a>`
+        };
+        (0, sendMail_1.default)(MailOptions);
+        res.status(200).json({ message: "Password Reset Link Send to your mail-id" });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error Occured ", error });
+    }
+});
+exports.forgotpassword = forgotpassword;

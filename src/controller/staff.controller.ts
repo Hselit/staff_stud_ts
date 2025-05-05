@@ -1,3 +1,4 @@
+import { MailOptions } from 'nodemailer/lib/json-transport';
 import jwt from 'jsonwebtoken';
 import path from 'path';
 import fs from 'fs';
@@ -5,9 +6,11 @@ import { Request,Response,NextFunction } from 'express';
 import { Parser } from 'json2csv';
 import dotenv from 'dotenv';
 dotenv.config();
+import crypto from 'crypto'
 
 import { readCsvFile } from '../service/readcsv';
 import db from '../models/index';
+import sendMail from '../service/sendMail';
 const { staff,student} = db;
 
 export const staffLogin = async function(req:Request,res:Response):Promise<void>{
@@ -201,4 +204,30 @@ export const exportStaffData = async(req:Request,res:Response,next:NextFunction)
       console.log(error);
       res.status(500).json({message:"Error Occured ",error});
    }
+};
+
+export const forgotpassword = async(req:Request,res:Response,next:NextFunction):Promise<void> => {
+  try{
+    const {email} = req.body;
+    const user = await staff.findOne({where:{email:email}});
+    console.log(email);
+    console.log(user);
+    if(!user){
+      res.status(404).json({message:"User Not Found.."});
+    }
+    const token = crypto.randomBytes(32).toString('hex');
+    const resetLink = `http://localhost:3000/staff/passwordreset?token=${token}`;
+    const MailOptions:MailOptions = {
+      from:process.env.MAIL_USER,
+      to:user.email,
+      subject:"Password Reset request",
+      html:`<p>For resetting your password... Click <a href="${resetLink}">here</a>`
+    }
+    sendMail(MailOptions);
+    res.status(200).json({message:"Password Reset Link Send to your mail-id"});
+  }
+  catch(error){
+    console.log(error);
+    res.status(500).json({message:"Error Occured ",error});
+  }
 }
