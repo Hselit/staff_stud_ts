@@ -1,44 +1,21 @@
 "use strict";
-var __importDefault =
-  (this && this.__importDefault) ||
-  function (mod) {
-    return mod && mod.__esModule ? mod : { default: mod };
-  };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const transporter = nodemailer_1.default.createTransport({
-  service: "gmail",
-  host: process.env.MAIL_HOST,
-  // port:process.env.MAIL_PORT,
-  secure: false,
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
-  },
-});
-const mailOptions = {
-  from: "tilesh162003@gmail.com",
-  to: "gojomoc753@firain.com",
-  subject: "This is a test Mail",
-  text: "this is a text",
-  attachments: [
-    {
-      filename: "readcsv.ts",
-      path: "./src/service/readcsv.ts",
+    service: "gmail",
+    host: process.env.MAIL_HOST,
+    // port:process.env.MAIL_PORT,
+    secure: false,
+    auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
     },
-  ],
-};
-function sendMail(mailoptions) {
-  transporter.sendMail(mailoptions, (error, info) => {
-    if (error) {
-      console.error(error);
-    } else {
-      console.log(info);
-    }
-  });
-}
-module.exports = sendMail;
+});
+module.exports = transporter;
 // async function sendTestEmail() {
 //   // Create a test SMTP account
 //   let testAccount = await nodemailer.createTestAccount();

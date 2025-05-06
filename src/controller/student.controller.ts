@@ -3,13 +3,13 @@ import { Parser } from "json2csv";
 import db from "../models/index";
 import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
-const { staff, student } = db;
+const { Staff, Student } = db;
 import fs from "fs";
 import path from "path";
 
 export const getStudent = async function (req: Request, res: Response): Promise<void> {
   try {
-    const data = await student.findAll();
+    const data = await Student.findAll();
     if (data.length == 0) {
       res.status(200).json({ message: "No student Found.." });
       return;
@@ -24,7 +24,7 @@ export const getStudent = async function (req: Request, res: Response): Promise<
 export const studentLogin = async function (req: Request, res: Response): Promise<void> {
   try {
     const { studentName, password } = req.body;
-    const data = await student.findOne({ where: { studentName } });
+    const data = await Student.findOne({ where: { studentName } });
     if (!data) {
       res.status(400).json({ message: "No Student found with the name" });
       return;
@@ -50,7 +50,7 @@ export const studentLogin = async function (req: Request, res: Response): Promis
 export const getStudentById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const data = await student.findByPk(id);
+    const data = await Student.findByPk(id);
     console.log(data);
     if (!data) {
       res.status(404).json({ message: "No student found with the Id" });
@@ -71,7 +71,7 @@ export const createStudent = async function (req: Request, res: Response) {
     // if(!staffName || !experience || !role){
     //   return res.status(400).json({message:"All Fields Required"});
     // }
-    await student.create({ studentName, password, age, marks, staff_id, profile });
+    await Student.create({ studentName, password, age, marks, staff_id, profile });
     res.status(201).json({ message: "student Added Successfully" });
   } catch (error) {
     console.log(error);
@@ -91,7 +91,7 @@ export const updateStudent = async (req: Request, res: Response): Promise<void> 
     //   return res.status(400).json({message:"All fields are required"});
     // }
 
-    const checkexistdata = await student.findByPk(id);
+    const checkexistdata = await Student.findByPk(id);
     // console.log(checkexistdata);
     if (!checkexistdata) {
       res.status(404).json({ message: "Not student found with the id" });
@@ -108,7 +108,7 @@ export const updateStudent = async (req: Request, res: Response): Promise<void> 
 
     // console.log("Update Data:", updateData);
 
-    const dt = await student.update(updateData, { where: { id } });
+    const dt = await Student.update(updateData, { where: { id } });
     // console.log(dt);
     if (dt[0] === 1) {
       res.status(200).json({ message: "student updated successfully" });
@@ -124,7 +124,7 @@ export const updateStudent = async (req: Request, res: Response): Promise<void> 
 export const deleteStudent = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const result = await student.findByPk(id);
+    const result = await Student.findByPk(id);
     if (!result) {
       res.status(404).json({ message: "No student found with the Id" });
       return;
@@ -140,14 +140,14 @@ export const deleteStudent = async (req: Request, res: Response): Promise<void> 
 export const getStaffs = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const result = await staff.findByPk(id, {
+    const result = await Staff.findByPk(id, {
       include: {
-        model: student,
-        attribute: {
+        model: Student,
+        attributes: {
           exclude: ["password"],
         },
       },
-      attribute: {
+      attributes: {
         exclude: ["password"],
       },
     });
@@ -164,7 +164,7 @@ export const getStaffs = async (req: Request, res: Response): Promise<void> => {
 
 export const exportStudentData = async (req: Request, res: Response) => {
   try {
-    const data = await student.findAll({ raw: true });
+    const data = await Student.findAll({ raw: true });
     const fields = ["id", "studentName", "marks", "age", "password", "profile", "staff_id"];
     const parser = new Parser({ fields });
     const csv = parser.parse(data);

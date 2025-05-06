@@ -1,56 +1,56 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Student = void 0;
+exports.initStudentModel = initStudentModel;
 const sequelize_1 = require("sequelize");
-module.exports = (sequelize, DataTypes) => {
-  class student extends sequelize_1.Model {
+class Student extends sequelize_1.Model {
     static associate(models) {
-      student.belongsTo(models.staff, {
-        foreignKey: "staff_id",
-      });
+        this.belongsTo(models.Staff, {
+            foreignKey: "staff_id",
+        });
     }
-  }
-  student.init(
-    {
-      id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-        autoIncrement: true,
-      },
-      studentName: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      marks: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      age: {
-        type: DataTypes.INTEGER,
-        defaultValue: 18,
-      },
-      password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      profile: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      staff_id: {
-        type: DataTypes.INTEGER,
-        references: {
-          model: "staff",
-          key: "id",
+}
+exports.Student = Student;
+function initStudentModel(sequelize) {
+    Student.init({
+        id: {
+            type: sequelize_1.DataTypes.INTEGER,
+            primaryKey: true,
+            allowNull: false,
+            autoIncrement: true,
         },
-      },
-    },
-    {
-      sequelize,
-      modelName: "student",
-      tableName: "students",
-      timestamps: false,
-    }
-  );
-  return student;
-};
+        studentName: {
+            type: sequelize_1.DataTypes.STRING,
+            allowNull: false,
+        },
+        marks: {
+            type: sequelize_1.DataTypes.INTEGER,
+            allowNull: false,
+        },
+        age: {
+            type: sequelize_1.DataTypes.INTEGER,
+            defaultValue: 18,
+        },
+        password: {
+            type: sequelize_1.DataTypes.STRING,
+            allowNull: false,
+        },
+        profile: {
+            type: sequelize_1.DataTypes.STRING,
+            allowNull: true,
+        },
+        staff_id: {
+            type: sequelize_1.DataTypes.INTEGER,
+            references: {
+                model: "staff",
+                key: "id",
+            },
+        },
+    }, {
+        sequelize,
+        modelName: "student",
+        tableName: "students",
+        timestamps: false,
+    });
+    return Student;
+}

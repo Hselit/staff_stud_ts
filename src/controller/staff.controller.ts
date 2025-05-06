@@ -1,4 +1,3 @@
-import { MailOptions } from "nodemailer/lib/json-transport";
 import jwt from "jsonwebtoken";
 import path from "path";
 import fs from "fs";
@@ -6,17 +5,15 @@ import { Request, Response, NextFunction } from "express";
 import { Parser } from "json2csv";
 import dotenv from "dotenv";
 dotenv.config();
-import crypto from "crypto";
 
 import { readCsvFile } from "../service/readcsv";
 import db from "../models/index";
-import sendMail from "../service/sendMail";
-const { staff, student } = db;
+const { Staff, Student } = db;
 
 export const staffLogin = async function (req: Request, res: Response): Promise<void> {
   try {
     const { staffName, password } = req.body;
-    const data = await staff.findOne({ where: { staffName } });
+    const data = await Staff.findOne({ where: { staffName } });
     // console.log(data);
     // const role = data.
     if (!data) {
@@ -42,7 +39,7 @@ export const staffLogin = async function (req: Request, res: Response): Promise<
 
 export const getStaff = async function (req: Request, res: Response): Promise<void> {
   try {
-    const data = await staff.findAll();
+    const data = await Staff.findAll();
     if (data.length == 0) {
       res.status(200).json({ message: "No Staff Found.." });
       return;
@@ -57,7 +54,7 @@ export const getStaff = async function (req: Request, res: Response): Promise<vo
 export const getStaffById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const data = await staff.findByPk(id);
+    const data = await Staff.findByPk(id);
     if (!data) {
       res.status(404).json({ message: "No Staff found with the Id" });
       return;
@@ -71,12 +68,12 @@ export const getStaffById = async (req: Request, res: Response): Promise<void> =
 
 export const createStaff = async function (req: Request, res: Response): Promise<void> {
   try {
-    const { staffName, role, experience, password } = req.body;
-    if (!staffName || !experience || !role || !password) {
+    const { staffName, role, experience, password, email } = req.body;
+    if (!staffName || !experience || !role || !password || !email) {
       res.status(400).json({ message: "All Fields Required" });
       return;
     }
-    await staff.create({ staffName, role, experience, password });
+    await Staff.create({ staffName, role, experience, password, email });
     res.status(201).json({ message: "Staff Added Successfully" });
   } catch (error) {
     console.log(error);
@@ -93,13 +90,13 @@ export const updateStaff = async (req: Request, res: Response) => {
     //   return res.status(400).json({message:"All fields are required"});
     // }
 
-    const checkexistdata = await staff.findByPk(id);
+    const checkexistdata = await Staff.findByPk(id);
     console.log(checkexistdata);
     if (!checkexistdata) {
       res.status(404).json({ message: "Not Staff found with the id" });
       return;
     }
-    const dt = await staff.update({ staffName, role, experience, password }, { where: { id } });
+    const dt = await Staff.update({ staffName, role, experience, password }, { where: { id } });
     if (dt[0] === 1) {
       res.status(200).json({ message: "Staff updated successfully" });
       return;
@@ -114,7 +111,7 @@ export const updateStaff = async (req: Request, res: Response) => {
 export const deleteStaff = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const result = await staff.findByPk(id);
+    const result = await Staff.findByPk(id);
     if (!result) {
       res.status(404).json({ message: "No Staff found with the Id" });
       return;
@@ -130,9 +127,9 @@ export const deleteStaff = async (req: Request, res: Response) => {
 export const getStudents = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const result = await staff.findByPk(id, {
+    const result = await Staff.findByPk(id, {
       include: {
-        model: student,
+        model: Student,
         attributes: ["studentName", "age", "marks"],
       },
       attributes: {
@@ -174,7 +171,7 @@ export const bulkInsertFromcsv = async (req: Request, res: Response): Promise<vo
   try {
     const staffData = req.body.data;
     // const InsertData = staffData.map(row =>)
-    await staff.bulkCreate(staffData);
+    await Staff.bulkCreate(staffData);
     res.status(201).json({ message: "Staffs record Inserted..." });
   } catch (error) {
     console.log("Error Occured ", error);
@@ -184,7 +181,7 @@ export const bulkInsertFromcsv = async (req: Request, res: Response): Promise<vo
 
 export const exportStaffData = async (req: Request, res: Response): Promise<void> => {
   try {
-    const data = await staff.findAll({ raw: true });
+    const data = await Staff.findAll({ raw: true });
     const fields = ["id", "staffName", "role", "experience", "password"];
     const parser = new Parser({ fields });
     const csv = parser.parse(data);
@@ -202,24 +199,36 @@ export const exportStaffData = async (req: Request, res: Response): Promise<void
 export const forgotpassword = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email } = req.body;
-    const user = await staff.findOne({ where: { email: email } });
+    const user = await Staff.findOne({ where: { email: email } });
     console.log(email);
     console.log(user);
     if (!user) {
       res.status(404).json({ message: "User Not Found.." });
     }
-    const token = crypto.randomBytes(32).toString("hex");
-    const resetLink = `http://localhost:3000/staff/passwordreset?token=${token}`;
-    const MailOptions: MailOptions = {
-      from: process.env.MAIL_USER,
-      to: user.email,
-      subject: "Password Reset request",
-      html: `<p>For resetting your password... Click <a href="${resetLink}">here</a>`,
-    };
-    sendMail(MailOptions);
+    // const token = crypto.randomBytes(32).toString("hex");
+    // const resetLink = `http://localhost:3000/staff/passwordreset?token=${token}`;
+    // const MailOptions: MailOptions = {
+    //   from: process.env.MAIL_USER,
+    //   to: user.email,
+    //   subject: "Password Reset request",
+    //   html: `<p>For resetting your password... Click <a href="${resetLink}">here</a>`,
+    // };
+    // sendMail(MailOptions);
+    const mailoptions = await email.findOne({ where: { type: "Password Reset" } });
+    console.log(mailoptions);
+    // await transporter.sendMail(mailoptions);
     res.status(200).json({ message: "Password Reset Link Send to your mail-id" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Error Occured ", error });
   }
+};
+
+export const resetpage = async (req: Request, res: Response) => {
+  console.log("in password verify route");
+  res
+    .status(200)
+    .send(
+      `<h3 style="text-align:center;">Password Reset Success</h3><br><h2 style="text-align:center;">Thank You.....</h2>`
+    );
 };

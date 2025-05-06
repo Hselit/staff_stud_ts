@@ -1,7 +1,6 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import Mail from "nodemailer/lib/mailer";
-import { MailOptions } from "nodemailer/lib/json-transport";
 
 dotenv.config();
 
@@ -29,17 +28,17 @@ const transporter: Mail = nodemailer.createTransport({
 //    ]
 // }
 
-function sendMail(mailoptions: MailOptions) {
-  transporter.sendMail(mailoptions, (error, info) => {
-    if (error) {
-      console.error(error);
-    } else {
-      console.log(info);
-    }
-  });
-}
+// function sendMail(mailoptions: MailOptions) {
+//   transporter.sendMail(mailoptions, (error, info) => {
+//     if (error) {
+//       console.error(error);
+//     } else {
+//       console.log(info);
+//     }
+//   });
+// }
 
-export = sendMail;
+export = transporter;
 
 // async function sendTestEmail() {
 //   // Create a test SMTP account

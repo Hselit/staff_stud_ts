@@ -1,17 +1,39 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use strict";
+import { DB } from "./index";
+import { Sequelize, Model, Optional, DataTypes } from "sequelize";
 
-import { Sequelize, Model } from "sequelize";
+interface studentAttribute {
+  id: number;
+  studentName: string;
+  marks: string;
+  age: string;
+  password: string;
+  profile: string | null;
+  staff_id: number;
+}
 
-module.exports = (sequelize: Sequelize, DataTypes: any) => {
-  class student extends Model {
-    static associate(models: { staff: any }) {
-      student.belongsTo(models.staff, {
-        foreignKey: "staff_id",
-      });
-    }
+type studentCreationAttributes = Optional<studentAttribute, "staff_id" | "id" | "profile">;
+
+export class Student
+  extends Model<studentAttribute, studentCreationAttributes>
+  implements studentAttribute
+{
+  declare studentName: string;
+  declare marks: string;
+  declare age: string;
+  declare profile: string;
+  declare id: number;
+  declare password: string;
+  declare staff_id: number;
+
+  static associate(models: DB) {
+    this.belongsTo(models.Staff, {
+      foreignKey: "staff_id",
+    });
   }
-  student.init(
+}
+
+export function initStudentModel(sequelize: Sequelize): typeof Student {
+  Student.init(
     {
       id: {
         type: DataTypes.INTEGER,
@@ -54,5 +76,6 @@ module.exports = (sequelize: Sequelize, DataTypes: any) => {
       timestamps: false,
     }
   );
-  return student;
-};
+
+  return Student;
+}

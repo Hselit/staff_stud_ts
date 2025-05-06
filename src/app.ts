@@ -6,6 +6,7 @@ import logger from "morgan";
 import indexRouter from "./routes/index";
 import staffRouter from "./routes/staff";
 import studentRoutes from "./routes/student";
+import emailRoutes from "./routes/email";
 
 const app = express();
 
@@ -19,5 +20,6 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/", indexRouter);
 app.use("/staff", staffRouter);
 app.use("/student", studentRoutes);
+app.use("/email", emailRoutes);
 
 export default app;

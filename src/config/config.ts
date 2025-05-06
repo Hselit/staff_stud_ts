@@ -1,13 +1,18 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-export const config = {
+interface DBConfig {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+}
+
+const config: DBConfig = {
   development: {
     username: process.env.DBUSER,
     password: process.env.DBPASSWORD,
     database: process.env.DBNAME,
     host: process.env.DBHOST,
-    dialect: process.env.DIALECT,
+    dialect: process.env.DIALECT || "mysql",
   },
   test: {
     username: "root",
@@ -24,3 +29,5 @@ export const config = {
     dialect: "mysql",
   },
 };
+
+export default config;

@@ -98,6 +98,8 @@ const validateStaffCreate = [
     .isInt({ min: 0, max: 50 })
     .withMessage("experience must be in range of 0-50"),
 
+  body("email").trim().notEmpty().isEmail().withMessage("Invalid Email"),
+
   handleValidationError,
 ];
 

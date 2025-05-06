@@ -9,6 +9,7 @@ import {
   validateStaffLogin,
   validateStaffCSV,
 } from "../middleware/staffValidator";
+
 import { verifyToken, roleMiddleware } from "../middleware/auth";
 import {
   bulkInsertFromcsv,
@@ -20,6 +21,7 @@ import {
   getStaff,
   getStaffById,
   getStudents,
+  resetpage,
   staffLogin,
   updateStaff,
 } from "../controller/staff.controller";
@@ -46,14 +48,7 @@ router.get("/export", verifyToken, roleMiddleware, exportStaffData);
 
 router.post("/forgotpassword", forgotpassword);
 
-router.get("/passwordreset", async (req, res) => {
-  console.log("in password verify route");
-  res
-    .status(200)
-    .send(
-      `<h3 style="text-align:center;">Password Reset Success</h3><br><h2 style="text-align:center;">Thank You.....</h2>`
-    );
-});
+router.get("/passwordreset", resetpage);
 
 //get single staff method
 router.get("/:id", verifyToken, roleMiddleware, validateStaffId, getStaffById);
