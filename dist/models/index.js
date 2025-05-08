@@ -12,6 +12,7 @@ const config_1 = __importDefault(require("../config/config"));
 const student_1 = require("./student");
 const staff_1 = require("./staff");
 const email_1 = require("./email");
+const html_1 = require("./html");
 const basename = path_1.default.basename(__filename);
 console.log(basename);
 // const configg: { [key: string]: SequelizeOptions } = {};
@@ -26,15 +27,32 @@ const sequelize = new sequelize_1.Sequelize(configdata.database, configdata.user
 const StudentModel = (0, student_1.initStudentModel)(sequelize);
 const StaffModel = (0, staff_1.initStaffModel)(sequelize);
 const EmailModel = (0, email_1.initEmailModel)(sequelize);
+const HtmlModel = (0, html_1.inithtmlModel)(sequelize);
 const db = {
     sequelize,
     Staff: StaffModel,
     Student: StudentModel,
     Email: EmailModel,
+    Html: HtmlModel,
 };
 (_a = StudentModel.associate) === null || _a === void 0 ? void 0 : _a.call(StudentModel, db);
 (_b = StaffModel.associate) === null || _b === void 0 ? void 0 : _b.call(StaffModel, db);
 exports.default = db;
+// /* eslint-disable @typescript-eslint/no-explicit-any */
+// import fs from "fs";
+// import path from "path";
+// import { Sequelize, DataTypes } from "sequelize";
+// import { config } from "../config/config"; // Import the config.ts file
+// const basename = path.basename(__filename);
+// console.log(basename);
+// // Accessing the configuration based on the environment
+// const db: { [key: string]: any } = {}; // You can replace `any` with model types later if needed
+// const sequelize: Sequelize = new Sequelize(
+//   config.development.database as string,
+//   config.development.username as string,
+//   config.development.password,
+//   config.development as any
+// );
 // // console.log(__dirname);
 // // Reading model files and loading them into `db`
 // const load = async () => {

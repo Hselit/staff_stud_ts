@@ -12,10 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AddEmailTemplate = void 0;
+exports.gethtmlfile = exports.readhtmlFile = exports.fileToPdf = exports.AddEmailTemplate = void 0;
+const fs_1 = __importDefault(require("fs"));
+const html_pdf_1 = __importDefault(require("html-pdf"));
+const util_1 = require("util");
 const index_1 = __importDefault(require("../models/index"));
 const sendMail_1 = __importDefault(require("../service/sendMail"));
-const { Email } = index_1.default;
+const path_1 = __importDefault(require("path"));
+const { Email, Html } = index_1.default;
+const createPdf = (0, util_1.promisify)(html_pdf_1.default.create);
+console.log("createpdf " + createPdf);
 const AddEmailTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const data = req.body;
     const { type, from, to } = data;
@@ -40,3 +46,78 @@ const AddEmailTemplate = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.AddEmailTemplate = AddEmailTemplate;
+const fileToPdf = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const file = ((_a = req.file) === null || _a === void 0 ? void 0 : _a.filename) || "";
+        const filepath = path_1.default.join(process.cwd(), "uploads", file); // use process.cwd()
+        console.log(filepath);
+        const html = fs_1.default.readFileSync(filepath, "utf8");
+        const options = { format: "A4" };
+        html_pdf_1.default.create(html, options).toBuffer((err, buffer) => {
+            if (err) {
+                console.log(err);
+                res.status(500).json({ message: "Failed to create PDF" });
+                return;
+            }
+            res.set({
+                "Content-Type": "application/pdf",
+                "Content-Disposition": "inline; filename=converted.pdf",
+                "Content-Length": buffer.length,
+            });
+            res.send(buffer);
+        });
+    }
+    catch (error) {
+        console.error("Error reading file:", error);
+        res.status(500).json({ message: "Error reading uploaded file" });
+    }
+});
+exports.fileToPdf = fileToPdf;
+const readhtmlFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const file = ((_a = req.file) === null || _a === void 0 ? void 0 : _a.filename) || "";
+        const filepath = path_1.default.join(process.cwd(), "uploads", file); // use process.cwd()
+        console.log(filepath);
+        const html = fs_1.default.readFileSync(filepath, "utf8");
+        console.log("HTML Content:", html);
+        res.status(200).json({ message: "File read successfully" });
+    }
+    catch (error) {
+        console.error("Error reading file:", error);
+        res.status(500).json({ message: "Error reading uploaded file" });
+    }
+});
+exports.readhtmlFile = readhtmlFile;
+const gethtmlfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { type } = req.body;
+        const htmlcontent = yield Html.findOne({ where: { type: type } });
+        const htmlc = htmlcontent === null || htmlcontent === void 0 ? void 0 : htmlcontent.dataValues.content;
+        console.log(htmlc);
+        const options = { format: "A4" };
+        if (!htmlc) {
+            res.status(500).json({ message: "No html content found with this type" });
+            return;
+        }
+        html_pdf_1.default.create(htmlc, options).toBuffer((err, buffer) => {
+            if (err) {
+                console.log(err);
+                res.status(500).json({ message: "Failed to create PDF" });
+                return;
+            }
+            res.set({
+                "Content-Type": "application/pdf",
+                "Content-Disposition": "inline; filename=converted.pdf",
+                "Content-Length": buffer.length,
+            });
+            res.send(buffer);
+        });
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json({ message: "Error Occured ", err });
+    }
+});
+exports.gethtmlfile = gethtmlfile;

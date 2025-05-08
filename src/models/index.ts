@@ -7,6 +7,7 @@ import config from "../config/config";
 import { Student, initStudentModel } from "./student";
 import { Staff, initStaffModel } from "./staff";
 import { Email, initEmailModel } from "./email";
+import { html, inithtmlModel } from "./html";
 
 const basename = path.basename(__filename);
 console.log(basename);
@@ -16,6 +17,7 @@ export interface DB {
   Staff: typeof Staff;
   Student: typeof Student;
   Email: typeof Email;
+  Html: typeof html;
 }
 
 // const configg: { [key: string]: SequelizeOptions } = {};
@@ -39,12 +41,14 @@ const sequelize: Sequelize = new Sequelize(
 const StudentModel = initStudentModel(sequelize);
 const StaffModel = initStaffModel(sequelize);
 const EmailModel = initEmailModel(sequelize);
+const HtmlModel = inithtmlModel(sequelize);
 
 const db: DB = {
   sequelize,
   Staff: StaffModel,
   Student: StudentModel,
   Email: EmailModel,
+  Html: HtmlModel,
 };
 
 StudentModel.associate?.(db);
