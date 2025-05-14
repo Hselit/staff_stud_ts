@@ -20,8 +20,8 @@ const index_1 = __importDefault(require("../models/index"));
 const sendMail_1 = __importDefault(require("../service/sendMail"));
 const path_1 = __importDefault(require("path"));
 const { Email, Html } = index_1.default;
-const createPdf = (0, util_1.promisify)(html_pdf_1.default.create);
-console.log("createpdf " + createPdf);
+(0, util_1.promisify)(html_pdf_1.default.create);
+// console.log("createpdf " + createPdf);
 const AddEmailTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const data = req.body;
     const { type, from, to } = data;

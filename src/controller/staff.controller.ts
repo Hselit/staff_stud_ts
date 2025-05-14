@@ -8,7 +8,8 @@ dotenv.config();
 
 import { readCsvFile } from "../service/readcsv";
 import db from "../models/index";
-const { Staff, Student } = db;
+import transporter from "../service/sendMail";
+const { Staff, Student, Email } = db;
 
 export const staffLogin = async function (req: Request, res: Response): Promise<void> {
   try {
@@ -198,10 +199,10 @@ export const exportStaffData = async (req: Request, res: Response): Promise<void
 
 export const forgotpassword = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email } = req.body;
+    const { email, type } = req.body;
     const user = await Staff.findOne({ where: { email: email } });
     console.log(email);
-    console.log(user);
+    // console.log(user);
     if (!user) {
       res.status(404).json({ message: "User Not Found.." });
     }
@@ -214,9 +215,13 @@ export const forgotpassword = async (req: Request, res: Response): Promise<void>
     //   html: `<p>For resetting your password... Click <a href="${resetLink}">here</a>`,
     // };
     // sendMail(MailOptions);
-    const mailoptions = await email.findOne({ where: { type: "Password Reset" } });
+    const mailoptions = await Email.findOne({ where: { type: type } });
     console.log(mailoptions);
-    // await transporter.sendMail(mailoptions);
+    if (!mailoptions) {
+      res.status(404).json({ message: "No Mail Template found with this type" });
+      return;
+    }
+    await transporter.sendMail({ ...mailoptions.dataValues, to: email });
     res.status(200).json({ message: "Password Reset Link Send to your mail-id" });
   } catch (error) {
     console.log(error);

@@ -9,8 +9,8 @@ import path from "path";
 
 const { Email, Html } = db;
 
-const createPdf = promisify(pdf.create);
-console.log("createpdf " + createPdf);
+promisify(pdf.create);
+// console.log("createpdf " + createPdf);
 export const AddEmailTemplate = async (req: Request, res: Response): Promise<void> => {
   const data = req.body;
   const { type, from, to } = data;

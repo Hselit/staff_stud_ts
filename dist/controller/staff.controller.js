@@ -21,7 +21,8 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const readcsv_1 = require("../service/readcsv");
 const index_1 = __importDefault(require("../models/index"));
-const { Staff, Student } = index_1.default;
+const sendMail_1 = __importDefault(require("../service/sendMail"));
+const { Staff, Student, Email } = index_1.default;
 const staffLogin = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -218,10 +219,10 @@ const exportStaffData = (req, res) => __awaiter(void 0, void 0, void 0, function
 exports.exportStaffData = exportStaffData;
 const forgotpassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { email } = req.body;
+        const { email, type } = req.body;
         const user = yield Staff.findOne({ where: { email: email } });
         console.log(email);
-        console.log(user);
+        // console.log(user);
         if (!user) {
             res.status(404).json({ message: "User Not Found.." });
         }
@@ -234,9 +235,13 @@ const forgotpassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
         //   html: `<p>For resetting your password... Click <a href="${resetLink}">here</a>`,
         // };
         // sendMail(MailOptions);
-        const mailoptions = yield email.findOne({ where: { type: "Password Reset" } });
+        const mailoptions = yield Email.findOne({ where: { type: type } });
         console.log(mailoptions);
-        // await transporter.sendMail(mailoptions);
+        if (!mailoptions) {
+            res.status(404).json({ message: "No Mail Template found with this type" });
+            return;
+        }
+        yield sendMail_1.default.sendMail(Object.assign(Object.assign({}, mailoptions.dataValues), { to: email }));
         res.status(200).json({ message: "Password Reset Link Send to your mail-id" });
     }
     catch (error) {
