@@ -8,12 +8,14 @@ import {
   validateStaffUpdate,
   validateStaffLogin,
   validateStaffCSV,
+  validateStaffCreateWithStudent,
 } from "../middleware/staffValidator";
 
 import { verifyToken, roleMiddleware } from "../middleware/auth";
 import {
   bulkInsertFromcsv,
   createStaff,
+  createStaffWithStudent,
   deleteStaff,
   exportStaffData,
   forgotpassword,
@@ -28,6 +30,9 @@ import {
 
 //staff login
 router.post("/stafflogin", validateStaffLogin, staffLogin);
+
+// create staff with student
+router.post("/addstaffstudent", validateStaffCreateWithStudent, createStaffWithStudent);
 
 //get staff method
 router.get("/", verifyToken, roleMiddleware, getStaff);

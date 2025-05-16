@@ -103,6 +103,92 @@ const validateStaffCreate = [
   handleValidationError,
 ];
 
+const validateStaffCreateWithStudent = [
+  body("studentName")
+    .trim()
+    .isString()
+    .withMessage("Student Name must be a string")
+    .notEmpty()
+    .withMessage("Student Name is required")
+    .isLength({ min: 3, max: 12 })
+    .custom((value: string) => {
+      if (/\d/.test(value)) {
+        // Check if it contains a number
+        throw new Error("Staff name cannot contain numbers");
+      }
+      return true;
+    }),
+
+  body("marks")
+    .trim()
+    .notEmpty()
+    .withMessage("Student mark is required")
+    .isInt({ min: 0, max: 100 })
+    .withMessage("Marks must be a Number"),
+
+  body("age")
+    .trim()
+    .notEmpty()
+    .withMessage("Age is required")
+    .isInt({ min: 18 })
+    .withMessage("Age must be greater than 18"),
+
+  body("password")
+    .trim()
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 8 })
+    .withMessage("Password length must be greater than 8 characters"),
+
+  body("staff.staffName")
+    .trim()
+    .notEmpty()
+    .withMessage("Staff Name is required")
+    .isString()
+    .withMessage("Staff name must be a string")
+    .isLength({ min: 3, max: 12 })
+    .withMessage("length should be minimun of 3 characters and maximum of 12 characters")
+    .custom((value: string) => {
+      if (/\d/.test(value)) {
+        // Check if it contains a number
+        throw new Error("Staff name cannot contain numbers");
+      }
+      return true;
+    }),
+
+  body("staff.role")
+    .trim()
+    .notEmpty()
+    .withMessage("Role is required")
+    .isString()
+    .withMessage("Role must be a string")
+    .custom((value: string) => {
+      if (/\d/.test(value)) {
+        // Check if it contains a number
+        throw new Error("Staff name cannot contain numbers");
+      }
+      return true;
+    }),
+
+  body("staff.password")
+    .trim()
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 8 })
+    .withMessage("Password length must be greater than 8 characters"),
+
+  body("staff.experience")
+    .trim()
+    .notEmpty()
+    .withMessage("Experience required")
+    .isInt({ min: 0, max: 50 })
+    .withMessage("experience must be in range of 0-50"),
+
+  body("staff.email").trim().notEmpty().isEmail().withMessage("Invalid Email"),
+
+  handleValidationError,
+];
+
 const validateStaffId = [
   param("id")
     .isInt()
@@ -244,4 +330,5 @@ export {
   validateStaffId,
   validateStaffLogin,
   validateStaffCSV,
+  validateStaffCreateWithStudent,
 };

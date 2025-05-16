@@ -9,7 +9,7 @@ dotenv.config();
 import { readCsvFile } from "../service/readcsv";
 import db from "../models/index";
 import transporter from "../service/sendMail";
-const { Staff, Student, Email } = db;
+const { Staff, Student, Email, sequelize } = db;
 
 export const staffLogin = async function (req: Request, res: Response): Promise<void> {
   try {
@@ -226,6 +226,25 @@ export const forgotpassword = async (req: Request, res: Response): Promise<void>
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Error Occured ", error });
+  }
+};
+
+export const createStaffWithStudent = async (req: Request, res: Response) => {
+  const trans = await sequelize.transaction();
+  try {
+    const { staff, studentName, age, marks, password } = req.body;
+    const newStaff = await Staff.create(staff, { transaction: trans });
+    const newStudent = await Student.create(
+      { studentName, password, age, marks, staff_id: newStaff.id },
+      { transaction: trans }
+    );
+    console.log("new staff :", newStaff, "\n new Student :", newStudent);
+    await trans.commit();
+    res.status(201).json({ message: "Created Successfully", staff: newStaff, student: newStudent });
+  } catch (error) {
+    await trans.rollback();
+    console.log(error);
+    res.status(500).json({ message: "Creation Failed", error: error });
   }
 };
 
