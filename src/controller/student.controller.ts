@@ -17,7 +17,7 @@ export const getStudent = async function (req: Request, res: Response): Promise<
     res.status(200).json(data);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error });
+    res.status(500).json({ message: error });
   }
 };
 
@@ -117,7 +117,7 @@ export const updateStudent = async (req: Request, res: Response): Promise<void> 
     res.status(400).json({ message: "No changes made" });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error });
+    res.status(500).json({ message: error });
   }
 };
 
@@ -133,7 +133,7 @@ export const deleteStudent = async (req: Request, res: Response): Promise<void> 
     res.status(200).json({ message: "student Deleted Successfully" });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error });
+    res.status(500).json({ message: error });
   }
 };
 

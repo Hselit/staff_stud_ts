@@ -8,14 +8,14 @@ interface AuthenticateRequest extends Request {
 }
 
 const verifyToken = (req: AuthenticateRequest, res: Response, next: NextFunction): void => {
-  const token = req.headers["authorization"];
+  const authHeader = req.headers["authorization"];
 
-  console.log("Token Received:", token);
-
-  if (!token) {
+  if (!authHeader) {
     res.status(401).json({ message: "Authentication Required: No token provided" });
     return;
   }
+
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string);

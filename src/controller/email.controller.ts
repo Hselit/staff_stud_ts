@@ -84,7 +84,7 @@ export const gethtmlfile = async (req: Request, res: Response): Promise<void> =>
     console.log(htmlc);
     const options: CreateOptions = { format: "A4" };
     if (!htmlc) {
-      res.status(500).json({ message: "No html content found with this type" });
+      res.status(404).json({ message: "No html content found with this type" });
       return;
     }
     pdf.create(htmlc, options).toBuffer((err, buffer) => {
