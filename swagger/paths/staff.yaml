@@ -1,0 +1,87 @@
+/:
+  get:
+    tags:
+      - Staff
+    summary: Get All Staffs List
+    responses:
+      200:
+        description: Staffs Retrived Success
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/staffGetSuccessResponse"
+      400:
+        description: Reqest Error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorSchema"
+      500:
+        description: Internal Server Error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorSchema"
+
+/{id}:
+  get:
+    tags:
+      - Staff
+    summary: Get Staff Data By Id
+    parameters:
+      - in: path
+        name: id
+        description: Unique Staff Id
+        required: true
+        schema:
+          type: number
+    responses:
+      200:
+        description: Retrived Staff By Id
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/staffSchema"
+      400:
+        description: Invalid User Input
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorSchema"
+      500:
+        description: Internal Server Error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorSchema"
+
+/stafflogin:
+  post:
+    tags:
+      - Staff
+    summary: Staff Login Route
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/staffLoginRequest"
+    responses:
+      200:
+        description: Staff Login Success
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffLoginResponse"
+      400:
+        description: Invalid user Input
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorSchema"
+      500:
+        description: Internal Server Error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorSchema"
