@@ -51,8 +51,10 @@ router.post(
 //export data using csv
 router.get("/export", verifyToken, roleMiddleware, exportStaffData);
 
+//forgot password route - send mail
 router.post("/forgotpassword", forgotpassword);
 
+// password reset route
 router.get("/passwordreset", resetpage);
 
 //get single staff method

@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 
-import { AddEmailTemplate, fileToPdf, gethtmlfile } from "../controller/email.controller";
+import { AddEmailTemplate, fileToPdf, gethtmlcontent } from "../controller/email.controller";
 import { addEmailValidator } from "../middleware/mailValidator";
 import { verifyToken } from "../middleware/auth";
 import upload from "../middleware/fileUpload";
@@ -117,6 +117,6 @@ router.post("/topdf", upload.single("file"), fileToPdf);
  *       500:
  *         description: Internal Server Error
  */
-router.post("/html", gethtmlfile);
+router.post("/html", gethtmlcontent);
 
 export default router;

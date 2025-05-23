@@ -1,24 +1,13 @@
 import { Model, DataTypes, Sequelize, Optional } from "sequelize";
 import { DB } from ".";
+import { StaffBase } from "../controller/dto/staff.dto";
 
-interface StaffAttributes {
-  id: number;
-  staffName: string | null;
-  role: string | null;
-  experience: number;
-  password: string;
-  email: string;
-}
+type StaffCreationAttributes = Optional<StaffBase, "id">;
 
-type StaffCreationAttributes = Optional<StaffAttributes, "id">;
-
-export class Staff
-  extends Model<StaffAttributes, StaffCreationAttributes>
-  implements StaffAttributes
-{
-  declare id: number;
-  declare staffName: string | null;
-  declare role: string | null;
+export class Staff extends Model<StaffBase, StaffCreationAttributes> implements StaffBase {
+  declare id?: number;
+  declare staffName: string;
+  declare role: string;
   declare experience: number;
   declare password: string;
   declare email: string;

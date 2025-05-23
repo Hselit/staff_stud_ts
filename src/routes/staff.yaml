@@ -1,0 +1,50 @@
+/staff/:
+  get:
+    tags:
+      - Staff
+    summary: Get All Staffs List
+    responses:
+      200:
+        description: Staffs Retrived Success
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+                  description: Unique Student Id
+                staffName:
+                  type: string
+                  description: Staff Name
+                role:
+                  type: string
+                  decription: Staff Role
+                experience:
+                  type: number
+                  description: Staff Experience=
+                password:
+                  type: string
+                  description: Staff Password
+                email:
+                  type: string
+                  description: Staff Email
+      400:
+        description: Reqest Error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: object
+                  description: Status Message
+      500:
+        description: Internal Server Error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: object

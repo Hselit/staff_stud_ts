@@ -1,7 +1,7 @@
 "use strict";
 import { Model, Sequelize, Optional, DataTypes } from "sequelize";
 
-interface EmailAttributes {
+export interface EmailAttributes {
   id: number;
   type: string;
   subject: string;

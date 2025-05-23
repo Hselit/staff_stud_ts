@@ -5,6 +5,7 @@ interface htmlStructure {
   type: string;
   content: string;
 }
+
 export class html extends Model<htmlStructure> implements htmlStructure {
   id!: string;
   type!: string;

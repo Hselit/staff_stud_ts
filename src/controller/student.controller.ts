@@ -1,36 +1,51 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Parser } from "json2csv";
-import db from "../models/index";
 import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
-const { Staff, Student } = db;
-import fs from "fs";
 import path from "path";
+import fs from "fs";
 
+import db from "../models/index";
+const { Staff, Student } = db;
+import {
+  StudentBase,
+  StudentDelete,
+  studentResponse,
+  studentStaff,
+  studId,
+  studentLogData,
+  updatecount,
+} from "./dto/student.dto";
+
+// get all student
 export const getStudent = async function (req: Request, res: Response): Promise<void> {
   try {
-    const data = await Student.findAll();
+    const data: StudentBase[] | null = await Student.findAll();
     if (data.length == 0) {
-      res.status(200).json({ message: "No student Found.." });
+      res.status(200).json({ message: "No student Found.." } as studentResponse);
       return;
     }
     res.status(200).json(data);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: error });
+    res.status(500).json({ message: "Internal Server Error" } as studentResponse);
+    return;
   }
 };
 
+// student login
 export const studentLogin = async function (req: Request, res: Response): Promise<void> {
   try {
-    const { studentName, password } = req.body;
-    const data = await Student.findOne({ where: { studentName } });
+    const logindata: studentLogData = req.body;
+    const data: StudentBase | null = await Student.findOne({
+      where: { studentName: logindata.studentName },
+    });
     if (!data) {
-      res.status(400).json({ message: "No Student found with the name" });
+      res.status(400).json({ message: "No Student found with the name" } as studentResponse);
       return;
     }
-    if (password != data.password) {
-      res.status(400).json({ message: "Invalid Password" });
+    if (logindata.password != data.password) {
+      res.status(400).json({ message: "Invalid Password" } as studentResponse);
       return;
     }
     const role = "student";
@@ -40,109 +55,124 @@ export const studentLogin = async function (req: Request, res: Response): Promis
       process.env.JWT_SECRET as string,
       { expiresIn: "1h" }
     );
-    res.status(200).json({ message: "Logged In Successfully", token });
+    res.status(200).json({ message: "Logged In Successfully", token: token } as studentResponse);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error });
+    res.status(500).json({ message: "Internal Server Error" } as studentResponse);
+    return;
   }
 };
 
+// get student by id
 export const getStudentById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
-    const data = await Student.findByPk(id);
+    const paramid: studId = {
+      id: Number(req.params.id),
+    };
+    const data: StudentBase | null = await Student.findByPk(paramid.id);
     console.log(data);
     if (!data) {
-      res.status(404).json({ message: "No student found with the Id" });
+      res.status(404).json({ message: "No student found with the Id" } as studentResponse);
       return;
     }
     res.status(200).json(data);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error });
+    res.status(500).json({ message: "Internal Server Error" } as studentResponse);
+    return;
   }
 };
 
-export const createStudent = async function (req: Request, res: Response) {
+// create student
+export const createStudent = async function (req: Request, res: Response): Promise<void> {
   try {
-    const { studentName, password, marks, age, staff_id } = req.body;
+    const bodydata: StudentBase = req.body;
     const profile = req.file ? req.file.filename : null;
 
     // if(!staffName || !experience || !role){
     //   return res.status(400).json({message:"All Fields Required"});
     // }
-    await Student.create({ studentName, password, age, marks, staff_id, profile });
-    res.status(201).json({ message: "student Added Successfully" });
+    await Student.create({
+      studentName: bodydata.studentName,
+      password: bodydata.password,
+      age: bodydata.age,
+      marks: bodydata.marks,
+      staff_id: bodydata.staff_id,
+      profile,
+    });
+    res.status(201).json({ message: "student Added Successfully" } as studentResponse);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error });
+    res.status(500).json({ message: "Internal Server Error" } as studentResponse);
+    return;
   }
 };
 
+// update student
 export const updateStudent = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const paramid: studId = {
+      id: Number(req.params.id),
+    };
     const { studentName, marks, age, staff_id, password } = req.body;
     const image = req.file ? req.file?.filename : null;
-    // console.log("req.file ",req.body.file)
-    // console.log("image ",image);
-    // console.log("student Name ",studentName,"Age ",age,"marks ",marks,"pass ",password);
-    // if(!studentName || !marks || !age ||!staff_id){
-    //   return res.status(400).json({message:"All fields are required"});
-    // }
 
-    const checkexistdata = await Student.findByPk(id);
+    const checkexistdata: StudentBase | null = await Student.findByPk(paramid.id);
     // console.log(checkexistdata);
     if (!checkexistdata) {
-      res.status(404).json({ message: "Not student found with the id" });
+      res.status(404).json({ message: "Not student found with the id" } as studentResponse);
       return;
     }
-    // console.log("req.file:", req.file);
-    // console.log("Image filename:", image);
 
     const updateData: any = { studentName, marks, age, staff_id, password };
     if (image) {
       // console.log("inside image");
       updateData.profile = image;
     }
-
     // console.log("Update Data:", updateData);
-
-    const dt = await Student.update(updateData, { where: { id } });
+    const dt: updatecount = await Student.update(updateData, { where: { id: paramid.id } });
     // console.log(dt);
     if (dt[0] === 1) {
-      res.status(200).json({ message: "student updated successfully" });
+      res.status(200).json({ message: "student updated successfully" } as studentResponse);
       return;
     }
-    res.status(400).json({ message: "No changes made" });
+    res.status(400).json({ message: "No changes made" } as studentResponse);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: error });
+    res.status(500).json({ message: "Internal Server Error" } as studentResponse);
+    return;
   }
 };
 
+// delete student
 export const deleteStudent = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
-    const result = await Student.findByPk(id);
+    const paramsid: studId = {
+      id: Number(req.params.id),
+    };
+    const result: StudentDelete | null = await Student.findByPk(paramsid.id);
     if (!result) {
-      res.status(404).json({ message: "No student found with the Id" });
+      res.status(404).json({ message: "No student found with the Id" } as studentResponse);
       return;
     }
     await result.destroy();
-    res.status(200).json({ message: "student Deleted Successfully" });
+    res.status(200).json({ message: "student Deleted Successfully" } as studentResponse);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: error });
+    res.status(500).json({ message: "Internal server Error" } as studentResponse);
+    return;
   }
 };
 
+// get students with staff
 export const getStaffs = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
-    const result = await Staff.findByPk(id, {
+    const sid: studId = {
+      id: Number(req.params.id),
+    };
+    const result: studentStaff | null = await Student.findByPk(sid.id, {
       include: {
-        model: Student,
+        model: Staff,
         attributes: {
           exclude: ["password"],
         },
@@ -152,29 +182,39 @@ export const getStaffs = async (req: Request, res: Response): Promise<void> => {
       },
     });
     if (!result) {
-      res.status(404).json({ message: "No Staff Found" });
+      res.status(404).json({ message: "No Staff Found" } as studentResponse);
       return;
     }
     res.status(200).json(result);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error });
+    res.status(500).json({ message: "Internal Server Error" } as studentResponse);
+    return;
   }
 };
 
-export const exportStudentData = async (req: Request, res: Response) => {
+// export student data
+export const exportStudentData = async (req: Request, res: Response): Promise<void> => {
   try {
-    const data = await Student.findAll({ raw: true });
-    const fields = ["id", "studentName", "marks", "age", "password", "profile", "staff_id"];
+    const data: StudentBase[] = await Student.findAll({ raw: true });
+    const fields: string[] = [
+      "id",
+      "studentName",
+      "marks",
+      "age",
+      "password",
+      "profile",
+      "staff_id",
+    ];
     const parser = new Parser({ fields });
-    const csv = parser.parse(data);
+    const csv: string = parser.parse(data);
 
-    const filepath = path.join(__dirname, "../../exports/students.csv");
+    const filepath: string = path.join(__dirname, "../../exports/students.csv");
     fs.writeFileSync(filepath, csv);
-
     res.download(filepath, "students.csv");
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Error Occured ", error });
+    res.status(500).json({ message: "Error Occured " } as studentResponse);
+    return;
   }
 };

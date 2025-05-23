@@ -1,26 +1,14 @@
+import { StudentBase } from "../controller/dto/student.dto";
 import { DB } from "./index";
 import { Sequelize, Model, Optional, DataTypes } from "sequelize";
 
-interface studentAttribute {
-  id: number;
-  studentName: string;
-  marks: string;
-  age: string;
-  password: string;
-  profile: string | null;
-  staff_id: number;
-}
+type studentCreationAttributes = Optional<StudentBase, "staff_id" | "id" | "profile">;
 
-type studentCreationAttributes = Optional<studentAttribute, "staff_id" | "id" | "profile">;
-
-export class Student
-  extends Model<studentAttribute, studentCreationAttributes>
-  implements studentAttribute
-{
+export class Student extends Model<StudentBase, studentCreationAttributes> implements StudentBase {
   declare studentName: string;
-  declare marks: string;
-  declare age: string;
-  declare profile: string;
+  declare marks: number;
+  declare age: number;
+  declare profile: string | null;
   declare id: number;
   declare password: string;
   declare staff_id: number;

@@ -9,19 +9,45 @@
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/staffGetSuccessResponse"
+              type: object
+              properties:
+                id:
+                  type: number
+                  description: Unique Student Id
+                staffName:
+                  type: string
+                  description: Staff Name
+                role:
+                  type: string
+                  decription: Staff Role
+                experience:
+                  type: number
+                  description: Staff Experience=
+                password:
+                  type: string
+                  description: Staff Password
+                email:
+                  type: string
+                  description: Staff Email
       400:
         description: Reqest Error
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ErrorSchema"
+              type: object
+              properties:
+                message:
+                  type: object
+                  description: Status Message
       500:
         description: Internal Server Error
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ErrorSchema"
+              type: object
+              properties:
+                message:
+                  type: object
 
 /{id}:
   get:
@@ -41,19 +67,46 @@
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/staffSchema"
+              type: object
+              properties:
+                id:
+                  type: number
+                  description: Unique Student Id
+                staffName:
+                  type: string
+                  description: Staff Name
+                role:
+                  type: string
+                  decription: Staff Role
+                experience:
+                  type: number
+                  description: Staff Experience
+                password:
+                  type: string
+                  description: Staff Password
+                email:
+                  type: string
+                  description: Staff Email
+
       400:
         description: Invalid User Input
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ErrorSchema"
+              type: object
+              properties:
+                message:
+                  type: object
+
       500:
         description: Internal Server Error
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ErrorSchema"
+              type: object
+              properties:
+                message:
+                  type: object
 
 /stafflogin:
   post:
@@ -65,23 +118,45 @@
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/staffLoginRequest"
+            type: object
+            properties:
+              staffName:
+                type: string
+                description: Staff Name
+              password:
+                type: string
+                description: Staff Password
+
     responses:
       200:
         description: Staff Login Success
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/StaffLoginResponse"
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Response message
+                token:
+                  type: string
+                  description: Jwt Token
       400:
         description: Invalid user Input
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ErrorSchema"
+              type: object
+              properties:
+                message:
+                  type: object
+
       500:
         description: Internal Server Error
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ErrorSchema"
+              type: object
+              properties:
+                message:
+                  type: object
