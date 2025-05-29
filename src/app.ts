@@ -8,9 +8,9 @@ import swaggerJsDocs from "swagger-jsdoc";
 // import YAML from "yamljs";
 
 import indexRouter from "./routes/index";
-import staffRouter from "./routes/staff";
-import studentRoutes from "./routes/student";
-import emailRoutes from "./routes/email";
+import staffRouter from "./routes/staffRoutes";
+import studentRoutes from "./routes/studentRoutes";
+import emailRoutes from "./routes/emailRoutes";
 
 const app = express();
 

@@ -4,26 +4,19 @@ import fs from "fs";
 import pdf, { CreateOptions } from "html-pdf";
 import { promisify } from "util";
 import db from "../models/index";
-import transporter from "../service/sendMail";
+import transporter from "../utils/sendMail";
 import path from "path";
-import {
-  EmailData,
-  emailResponse,
-  emailType,
-  errorResponse,
-  HtmlData,
-  sendEmail,
-} from "./dto/email.dto";
+import { EmailData, emailResponse, emailType, errorResponse, HtmlData, sendEmail } from "../dto/email.dto";
 
 const { Email, Html } = db;
 promisify(pdf.create);
 
 //send template through mail
 export const AddEmailTemplate = async (req: Request, res: Response): Promise<void> => {
-  const data: sendEmail = req.body;
+  const emailData: sendEmail = req.body;
 
   try {
-    const mailoption: EmailData | null = await Email.findOne({ where: { type: data.type } });
+    const mailoption: EmailData | null = await Email.findOne({ where: { type: emailData.type } });
     console.log(mailoption);
     if (!mailoption) {
       const response: errorResponse = {
@@ -32,21 +25,24 @@ export const AddEmailTemplate = async (req: Request, res: Response): Promise<voi
       res.status(404).json(response);
       return;
     }
-    transporter.sendMail({ ...mailoption, from: data.from, to: data.to }, (error, info) => {
-      if (error) {
-        const response: errorResponse = {
-          message: "Error in Sending Mail",
-          error: error,
-        };
-        res.status(500).json(response);
-      } else {
-        const response: emailResponse = {
-          message: "Mail Sent Success",
-          info: info,
-        };
-        res.status(200).json(response);
+    transporter.sendMail(
+      { subject: mailoption.subject, text: mailoption.html, cc: mailoption.cc, to: emailData.to },
+      (error, info) => {
+        if (error) {
+          const response: errorResponse = {
+            message: "Error in Sending Mail",
+            error: error,
+          };
+          res.status(500).json(response);
+        } else {
+          const response: emailResponse = {
+            message: "Mail Sent Success",
+            info: info,
+          };
+          res.status(200).json(response);
+        }
       }
-    });
+    );
   } catch (err) {
     const response: errorResponse = {
       message: "Server Error",
@@ -60,7 +56,7 @@ export const AddEmailTemplate = async (req: Request, res: Response): Promise<voi
 export const fileToPdf = async (req: Request, res: Response): Promise<void> => {
   try {
     const file: string = req.file?.filename || "";
-    const filepath: string = path.join(process.cwd(), "uploads", file); // use process.cwd()
+    const filepath: string = path.join(process.cwd(), "uploads", file);
     console.log(filepath);
     const html: string = fs.readFileSync(filepath, "utf8");
     const options: CreateOptions = { format: "A4" };

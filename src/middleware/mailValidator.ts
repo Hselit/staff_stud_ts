@@ -9,13 +9,6 @@ export const addEmailValidator = [
     .isString()
     .withMessage("Type Should be a string"),
 
-  body("from")
-    .trim()
-    .notEmpty()
-    .withMessage("From should not be empty")
-    .isEmail()
-    .withMessage("Invalid Email Format"),
-
   body("to")
     .trim()
     .notEmpty()

@@ -6,31 +6,30 @@ import { Parser } from "json2csv";
 import dotenv from "dotenv";
 dotenv.config();
 
-import { readCsvFile } from "../service/readcsv";
-import db from "../models/index";
-import transporter from "../service/sendMail";
-const { Staff, Student, Email, sequelize } = db;
+import { readCsvFile } from "../utils/readCsv";
+import transporter from "../utils/sendMail";
 import {
   StaffBase,
   StaffDelete,
-  StaffStudentData,
+  StaffStudentResponse,
   emailRequest,
   staffId,
   staffLoginRequest,
   staffResponse,
+  staffStudentRequest,
   updateStaffData,
-  updatecount,
-} from "./dto/staff.dto";
-import { StudentBase } from "./dto/student.dto";
-import { EmailAttributes } from "../models/email";
+} from "../dto/staff.dto";
+import { EmailData } from "../dto/email.dto";
+import { StaffService } from "../service/staffService";
+import db from "../models/index";
+import { EmailService } from "../service/emailService";
+const { sequelize } = db;
 
 // staff login
 export const staffLogin = async function (req: Request, res: Response): Promise<void> {
   try {
-    const reqdata: staffLoginRequest = req.body;
-    const data: StaffBase | null = await Staff.findOne({ where: { staffName: reqdata.staffName } });
-    // console.log(data);
-    // const role = data.
+    const loginRequest: staffLoginRequest = req.body;
+    const data: StaffBase | null = await StaffService.getStaffByName(loginRequest);
     if (!data) {
       const response: staffResponse = {
         message: "No Staff fouund with the name",
@@ -38,7 +37,7 @@ export const staffLogin = async function (req: Request, res: Response): Promise<
       res.status(400).json(response);
       return;
     }
-    if (reqdata.password != data.password) {
+    if (loginRequest.password != data.password) {
       const response: staffResponse = {
         message: "Invalid Password",
       };
@@ -67,14 +66,14 @@ export const staffLogin = async function (req: Request, res: Response): Promise<
 };
 
 // get all staff
-export const getStaff = async function (req: Request, res: Response): Promise<void> {
+export const getAllStaff = async function (req: Request, res: Response): Promise<void> {
   try {
-    const data = await Staff.findAll();
-    if (data.length == 0) {
+    const StaffListResponse: StaffBase[] = await StaffService.getStaffList();
+    if (StaffListResponse.length == 0) {
       res.status(200).json({ message: "No Staff Found.." } as staffResponse);
       return;
     }
-    res.status(200).json(data);
+    res.status(200).json(StaffListResponse);
   } catch (error) {
     console.log(error);
     const response: staffResponse = {
@@ -88,10 +87,10 @@ export const getStaff = async function (req: Request, res: Response): Promise<vo
 // get single staff
 export const getStaffById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const staffdt: staffId = {
+    const staffid: staffId = {
       id: Number(req.params.id),
     };
-    const data: StaffBase | null = await Staff.findByPk(staffdt.id);
+    const data: StaffBase | null = await StaffService.getStaffById(staffid);
     if (!data) {
       const response: staffResponse = {
         message: "No staff found with the id",
@@ -113,30 +112,24 @@ export const getStaffById = async (req: Request, res: Response): Promise<void> =
 // create staff
 export const createStaff = async function (req: Request, res: Response): Promise<void> {
   try {
-    const dt: StaffBase = req.body;
-    if (!dt.staffName || !dt.experience || !dt.role || !dt.password || !dt.email) {
-      const resp: staffResponse = {
-        message: "All Fields Required",
-      };
+    const createStaffData: StaffBase = req.body;
+    if (
+      !createStaffData.staffName ||
+      !createStaffData.experience ||
+      !createStaffData.role ||
+      !createStaffData.password ||
+      !createStaffData.email
+    ) {
+      const resp: staffResponse = { message: "All Fields Required" };
       res.status(400).json(resp);
       return;
     }
-    await Staff.create({
-      staffName: dt.staffName,
-      role: dt.role,
-      experience: dt.experience,
-      password: dt.password,
-      email: dt.email,
-    });
-    const response: staffResponse = {
-      message: "Staff Added Successfully",
-    };
+    await StaffService.addStaff(createStaffData);
+    const response: staffResponse = { message: "Staff Added Successfully" };
     res.status(201).json(response);
   } catch (error) {
     console.log("Error Occured ", error);
-    const response: staffResponse = {
-      message: "Internal Server Error",
-    };
+    const response: staffResponse = { message: "Internal Server Error" };
     res.status(500).json(response);
     return;
   }
@@ -145,12 +138,12 @@ export const createStaff = async function (req: Request, res: Response): Promise
 // update staff
 export const updateStaff = async (req: Request, res: Response): Promise<void> => {
   try {
-    const paramsid: staffId = {
+    const staffid: staffId = {
       id: Number(req.params.id),
     };
     const bodydata: updateStaffData = req.body;
 
-    const checkexistdata: StaffBase | null = await Staff.findByPk(paramsid.id);
+    const checkexistdata: StaffBase | null = await StaffService.getStaffById(staffid);
     console.log(checkexistdata);
     if (!checkexistdata) {
       const response: staffResponse = {
@@ -159,25 +152,19 @@ export const updateStaff = async (req: Request, res: Response): Promise<void> =>
       res.status(404).json(response);
       return;
     }
-    const dt: updatecount = await Staff.update(
-      {
-        staffName: bodydata.staffName,
-        role: bodydata.role,
-        experience: bodydata.experience,
-        password: bodydata.password,
-      },
-      { where: { id: paramsid.id } }
-    );
+    const dt = await StaffService.updateStaff(bodydata, staffid);
+    console.log(dt);
     if (dt[0] === 1) {
       const response: staffResponse = {
         message: "Staff updated successfully",
       };
       res.status(200).json(response);
+    } else {
+      const response: staffResponse = {
+        message: "No Changes Made",
+      };
+      res.status(400).json(response);
     }
-    const response: staffResponse = {
-      message: "No Changes Made",
-    };
-    res.status(400).json(response);
   } catch (error) {
     console.log(error);
     const response: staffResponse = {
@@ -191,10 +178,10 @@ export const updateStaff = async (req: Request, res: Response): Promise<void> =>
 // delete staff
 export const deleteStaff = async (req: Request, res: Response): Promise<void> => {
   try {
-    const deleteId: staffId = {
+    const staffid: staffId = {
       id: Number(req.params.id),
     };
-    const result: StaffDelete | null = await Staff.findByPk(deleteId.id);
+    const result: StaffDelete | null = await StaffService.getStaffById(staffid);
     if (!result) {
       const response: staffResponse = {
         message: "No Staff found with the id",
@@ -217,18 +204,10 @@ export const deleteStaff = async (req: Request, res: Response): Promise<void> =>
 // get staff with student
 export const getStudents = async (req: Request, res: Response): Promise<void> => {
   try {
-    const stId: staffId = {
+    const staffid: staffId = {
       id: Number(req.params.id),
     };
-    const result: StaffStudentData | null = await Staff.findByPk(stId.id, {
-      include: {
-        model: Student,
-        attributes: ["studentName", "age", "marks"],
-      },
-      attributes: {
-        exclude: ["password"],
-      },
-    });
+    const result: StaffStudentResponse | null = await StaffService.getStaffAndStudent(staffid);
     if (!result) {
       res.status(404).json({ message: "No Students Found for Staff" } as staffResponse);
       return;
@@ -263,8 +242,8 @@ export const getcsv = async (req: Request, res: Response, next: NextFunction): P
 // bulk insert csv data
 export const bulkInsertFromcsv = async (req: Request, res: Response): Promise<void> => {
   try {
-    const staffData = req.body.data;
-    await Staff.bulkCreate(staffData);
+    const staffData: StaffBase[] = req.body.data;
+    await StaffService.addBulkStaff(staffData);
     res.status(201).json({ message: "Staffs record Inserted..." } as staffResponse);
   } catch (error) {
     console.log("Error Occured ", error);
@@ -276,7 +255,7 @@ export const bulkInsertFromcsv = async (req: Request, res: Response): Promise<vo
 // export staff data
 export const exportStaffData = async (req: Request, res: Response): Promise<void> => {
   try {
-    const data: StaffBase[] | null = await Staff.findAll({ raw: true });
+    const data: StaffBase[] | null = await StaffService.getStaffList();
     const fields = ["id", "staffName", "role", "experience", "password"];
     const parser = new Parser({ fields });
     const csv = parser.parse(data);
@@ -295,20 +274,23 @@ export const exportStaffData = async (req: Request, res: Response): Promise<void
 export const forgotpassword = async (req: Request, res: Response): Promise<void> => {
   try {
     const bodydata: emailRequest = req.body;
-    const user: StaffBase | null = await Staff.findOne({ where: { email: bodydata.email } });
+    const user: StaffBase | null = await StaffService.getStaffByEmail(bodydata);
     // console.log(user);
     if (!user) {
       res.status(404).json({ message: "User Not Found.." } as staffResponse);
     }
-    const mailoptions: EmailAttributes | null = await Email.findOne({
-      where: { type: bodydata.type },
-    });
+    const mailoptions: EmailData | null = await EmailService.getEmailByType(bodydata);
     console.log(mailoptions);
     if (!mailoptions) {
       res.status(404).json({ message: "No Mail Template found with this type" } as staffResponse);
       return;
     }
-    await transporter.sendMail({ ...mailoptions, to: bodydata.email });
+    await transporter.sendMail({
+      text: mailoptions.html,
+      cc: mailoptions.cc,
+      subject: mailoptions.subject,
+      to: bodydata.email,
+    });
     res.status(200).json({ message: "Password Reset Link Send to your mail-id" } as staffResponse);
   } catch (error) {
     console.log(error);
@@ -321,19 +303,10 @@ export const forgotpassword = async (req: Request, res: Response): Promise<void>
 export const createStaffWithStudent = async (req: Request, res: Response): Promise<void> => {
   const trans = await sequelize.transaction();
   try {
-    const { staff, studentName, age, marks, password } = req.body;
-    const newStaff: StaffBase = await Staff.create(staff, { transaction: trans });
-    const newStudent: StudentBase = await Student.create(
-      { studentName, password, age, marks, staff_id: newStaff.id },
-      { transaction: trans }
-    );
-    console.log("new staff :", newStaff, "\n new Student :", newStudent);
+    const staffStudentRequest: staffStudentRequest = req.body;
+    await StaffService.addStaffAndStudent(trans, staffStudentRequest);
     await trans.commit();
-    res.status(201).json({
-      message: "Created Successfully",
-      staff: newStaff,
-      student: newStudent,
-    } as staffResponse);
+    res.status(201).json({ message: "Created Successfully" } as staffResponse);
   } catch (error) {
     await trans.rollback();
     console.log(error);

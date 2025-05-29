@@ -7,9 +7,9 @@ import {
   validateStudentId,
   validateStudentLogin,
 } from "../middleware/studentValidator";
-import { verifyToken, roleMiddleware } from "../middleware/auth";
+import { verifyToken, roleMiddleware } from "../middleware/UserAuthentication";
 import {
-  getStudent,
+  getStudentList,
   getStudentById,
   updateStudent,
   deleteStudent,
@@ -17,7 +17,7 @@ import {
   createStudent,
   studentLogin,
   exportStudentData,
-} from "../controller/student.controller";
+} from "../controller/studentController";
 import upload from "../middleware/imageUpload";
 
 /**
@@ -138,7 +138,7 @@ router.post("/studentlogin", validateStudentLogin, studentLogin);
  */
 
 //get student method
-router.get("/", verifyToken, getStudent);
+router.get("/", verifyToken, getStudentList);
 
 //export data using csv
 router.get("/export", verifyToken, roleMiddleware, exportStudentData);
@@ -279,14 +279,7 @@ router.get("/:id", verifyToken, roleMiddleware, validateStudentId, getStudentByI
  */
 
 //student post method
-router.post(
-  "/",
-  verifyToken,
-  roleMiddleware,
-  upload.single("profile"),
-  validateStudentCreate,
-  createStudent
-);
+router.post("/", verifyToken, roleMiddleware, upload.single("profile"), validateStudentCreate, createStudent);
 
 /**
  * @swagger

@@ -1,6 +1,6 @@
 import { Model, DataTypes, Sequelize, Optional } from "sequelize";
 import { DB } from ".";
-import { StaffBase } from "../controller/dto/staff.dto";
+import { StaffBase } from "../dto/staff.dto";
 
 type StaffCreationAttributes = Optional<StaffBase, "id">;
 

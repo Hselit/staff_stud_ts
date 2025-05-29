@@ -8,12 +8,14 @@ export interface StudentBase {
   staff_id?: number;
 }
 
+export type updateStudentData = Partial<StudentBase>;
+
 export interface StudentDelete extends StudentBase {
   destroy(): void;
 }
 
 export type studId = {
-  id: number | string;
+  id: number;
 };
 
 export interface studentStaff extends StudentBase {

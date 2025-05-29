@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 
-import uploadcsv from "../middleware/csvUpload";
+import uploadcsv from "../middleware/fileUpload";
 import {
   validateStaffId,
   validateStaffCreate,
@@ -11,7 +11,7 @@ import {
   validateStaffCreateWithStudent,
 } from "../middleware/staffValidator";
 
-import { verifyToken, roleMiddleware } from "../middleware/auth";
+import { verifyToken, roleMiddleware } from "../middleware/UserAuthentication";
 import {
   bulkInsertFromcsv,
   createStaff,
@@ -20,13 +20,13 @@ import {
   exportStaffData,
   forgotpassword,
   getcsv,
-  getStaff,
+  getAllStaff,
   getStaffById,
   getStudents,
   resetpage,
   staffLogin,
   updateStaff,
-} from "../controller/staff.controller";
+} from "../controller/staffController";
 
 //staff login
 router.post("/stafflogin", validateStaffLogin, staffLogin);
@@ -35,7 +35,7 @@ router.post("/stafflogin", validateStaffLogin, staffLogin);
 router.post("/addstaffstudent", validateStaffCreateWithStudent, createStaffWithStudent);
 
 //get staff method
-router.get("/", verifyToken, roleMiddleware, getStaff);
+router.get("/", verifyToken, roleMiddleware, getAllStaff);
 
 //Bulk Insert using CSV
 router.post(

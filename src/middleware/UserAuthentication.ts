@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Response, NextFunction } from "express";
-import { AuthenticateRequest, ResponseModel } from "../controller/dto/common.dto";
+import { AuthenticateRequest, ResponseModel } from "../dto/common.dto";
 
 const verifyToken = (req: AuthenticateRequest, res: Response, next: NextFunction): void => {
   const authHeader = req.headers["authorization"];

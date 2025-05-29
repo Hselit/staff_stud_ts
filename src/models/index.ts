@@ -4,10 +4,10 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import config from "../config/config";
-import { Student, initStudentModel } from "./student";
-import { Staff, initStaffModel } from "./staff";
-import { Email, initEmailModel } from "./email";
-import { html, inithtmlModel } from "./html";
+import { Student, initStudentModel } from "./studentModel";
+import { Staff, initStaffModel } from "./staffModel";
+import { Email, initEmailModel } from "./emailModel";
+import { html, inithtmlModel } from "./htmlModel";
 
 const basename = path.basename(__filename);
 console.log(basename);

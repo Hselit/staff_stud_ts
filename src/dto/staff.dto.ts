@@ -11,12 +11,21 @@ export interface StaffDelete extends StaffBase {
   destroy(): Promise<void>;
 }
 
-export interface StaffStudentData extends StaffBase {
+export interface StaffStudentResponse extends StaffBase {
   students?: {
     studentName: string;
     age: number;
     marks: number;
   }[];
+}
+
+export interface staffStudentRequest extends StaffBase {
+  students: {
+    studentName: string;
+    age: number;
+    marks: number;
+    password: string;
+  };
 }
 
 export type staffLoginRequest = {

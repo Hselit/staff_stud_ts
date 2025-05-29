@@ -1,4 +1,4 @@
-import { StudentBase } from "../controller/dto/student.dto";
+import { StudentBase } from "../dto/student.dto";
 import { DB } from "./index";
 import { Sequelize, Model, Optional, DataTypes } from "sequelize";
 

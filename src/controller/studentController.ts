@@ -5,8 +5,6 @@ import { Request, Response } from "express";
 import path from "path";
 import fs from "fs";
 
-import db from "../models/index";
-const { Staff, Student } = db;
 import {
   StudentBase,
   StudentDelete,
@@ -15,17 +13,18 @@ import {
   studId,
   studentLogData,
   updatecount,
-} from "./dto/student.dto";
+} from "../dto/student.dto";
+import { StudentService } from "../service/studentService";
 
 // get all student
-export const getStudent = async function (req: Request, res: Response): Promise<void> {
+export const getStudentList = async function (req: Request, res: Response): Promise<void> {
   try {
-    const data: StudentBase[] | null = await Student.findAll();
-    if (data.length == 0) {
+    const studentlist: StudentBase[] | null = await StudentService.getStudentList();
+    if (studentlist.length == 0) {
       res.status(200).json({ message: "No student Found.." } as studentResponse);
       return;
     }
-    res.status(200).json(data);
+    res.status(200).json(studentlist);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal Server Error" } as studentResponse);
@@ -36,15 +35,13 @@ export const getStudent = async function (req: Request, res: Response): Promise<
 // student login
 export const studentLogin = async function (req: Request, res: Response): Promise<void> {
   try {
-    const logindata: studentLogData = req.body;
-    const data: StudentBase | null = await Student.findOne({
-      where: { studentName: logindata.studentName },
-    });
+    const loginRequest: studentLogData = req.body;
+    const data: StudentBase | null = await StudentService.getStudentByName(loginRequest);
     if (!data) {
       res.status(400).json({ message: "No Student found with the name" } as studentResponse);
       return;
     }
-    if (logindata.password != data.password) {
+    if (loginRequest.password != data.password) {
       res.status(400).json({ message: "Invalid Password" } as studentResponse);
       return;
     }
@@ -66,10 +63,10 @@ export const studentLogin = async function (req: Request, res: Response): Promis
 // get student by id
 export const getStudentById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const paramid: studId = {
+    const studentid: studId = {
       id: Number(req.params.id),
     };
-    const data: StudentBase | null = await Student.findByPk(paramid.id);
+    const data: StudentBase | null = await StudentService.getStudentById(studentid);
     console.log(data);
     if (!data) {
       res.status(404).json({ message: "No student found with the Id" } as studentResponse);
@@ -86,20 +83,13 @@ export const getStudentById = async (req: Request, res: Response): Promise<void>
 // create student
 export const createStudent = async function (req: Request, res: Response): Promise<void> {
   try {
-    const bodydata: StudentBase = req.body;
-    const profile = req.file ? req.file.filename : null;
-
-    // if(!staffName || !experience || !role){
-    //   return res.status(400).json({message:"All Fields Required"});
-    // }
-    await Student.create({
-      studentName: bodydata.studentName,
-      password: bodydata.password,
-      age: bodydata.age,
-      marks: bodydata.marks,
-      staff_id: bodydata.staff_id,
-      profile,
-    });
+    const studentRequestData: StudentBase = req.body;
+    if (req.file) {
+      studentRequestData.profile = req.file.fieldname;
+    } else {
+      studentRequestData.profile = null;
+    }
+    await StudentService.addStudent(studentRequestData);
     res.status(201).json({ message: "student Added Successfully" } as studentResponse);
   } catch (error) {
     console.log(error);
@@ -111,13 +101,13 @@ export const createStudent = async function (req: Request, res: Response): Promi
 // update student
 export const updateStudent = async (req: Request, res: Response): Promise<void> => {
   try {
-    const paramid: studId = {
+    const studentid: studId = {
       id: Number(req.params.id),
     };
     const { studentName, marks, age, staff_id, password } = req.body;
     const image = req.file ? req.file?.filename : null;
 
-    const checkexistdata: StudentBase | null = await Student.findByPk(paramid.id);
+    const checkexistdata: StudentBase | null = await StudentService.getStudentById(studentid);
     // console.log(checkexistdata);
     if (!checkexistdata) {
       res.status(404).json({ message: "Not student found with the id" } as studentResponse);
@@ -129,9 +119,7 @@ export const updateStudent = async (req: Request, res: Response): Promise<void> 
       // console.log("inside image");
       updateData.profile = image;
     }
-    // console.log("Update Data:", updateData);
-    const dt: updatecount = await Student.update(updateData, { where: { id: paramid.id } });
-    // console.log(dt);
+    const dt: updatecount = await StudentService.updateStudent(updateData, studentid);
     if (dt[0] === 1) {
       res.status(200).json({ message: "student updated successfully" } as studentResponse);
       return;
@@ -147,15 +135,15 @@ export const updateStudent = async (req: Request, res: Response): Promise<void> 
 // delete student
 export const deleteStudent = async (req: Request, res: Response): Promise<void> => {
   try {
-    const paramsid: studId = {
+    const studentid: studId = {
       id: Number(req.params.id),
     };
-    const result: StudentDelete | null = await Student.findByPk(paramsid.id);
+    const result: StudentDelete | null = await StudentService.getStudentById(studentid);
     if (!result) {
       res.status(404).json({ message: "No student found with the Id" } as studentResponse);
       return;
     }
-    await result.destroy();
+    await StudentService.deleteStudent(studentid);
     res.status(200).json({ message: "student Deleted Successfully" } as studentResponse);
   } catch (error) {
     console.log(error);
@@ -167,20 +155,10 @@ export const deleteStudent = async (req: Request, res: Response): Promise<void> 
 // get students with staff
 export const getStaffs = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sid: studId = {
+    const studentid: studId = {
       id: Number(req.params.id),
     };
-    const result: studentStaff | null = await Student.findByPk(sid.id, {
-      include: {
-        model: Staff,
-        attributes: {
-          exclude: ["password"],
-        },
-      },
-      attributes: {
-        exclude: ["password"],
-      },
-    });
+    const result: studentStaff | null = await StudentService.getStudentAndStaff(studentid);
     if (!result) {
       res.status(404).json({ message: "No Staff Found" } as studentResponse);
       return;
@@ -196,18 +174,10 @@ export const getStaffs = async (req: Request, res: Response): Promise<void> => {
 // export student data
 export const exportStudentData = async (req: Request, res: Response): Promise<void> => {
   try {
-    const data: StudentBase[] = await Student.findAll({ raw: true });
-    const fields: string[] = [
-      "id",
-      "studentName",
-      "marks",
-      "age",
-      "password",
-      "profile",
-      "staff_id",
-    ];
+    const studentlist: StudentBase[] = await StudentService.getStudentList();
+    const fields: string[] = ["id", "studentName", "marks", "age", "password", "profile", "staff_id"];
     const parser = new Parser({ fields });
-    const csv: string = parser.parse(data);
+    const csv: string = parser.parse(studentlist);
 
     const filepath: string = path.join(__dirname, "../../exports/students.csv");
     fs.writeFileSync(filepath, csv);

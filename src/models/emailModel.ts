@@ -1,17 +1,10 @@
 "use strict";
 import { Model, Sequelize, Optional, DataTypes } from "sequelize";
+import { EmailData } from "../dto/email.dto";
 
-export interface EmailAttributes {
-  id: number;
-  type: string;
-  subject: string;
-  html: string;
-  cc?: string;
-}
+type emailCreation = Optional<EmailData, "id" | "cc">;
 
-type emailCreation = Optional<EmailAttributes, "id" | "cc">;
-
-export class Email extends Model<EmailAttributes, emailCreation> implements EmailAttributes {
+export class Email extends Model<EmailData, emailCreation> implements EmailData {
   id!: number;
   type!: string;
   subject!: string;
@@ -50,6 +43,5 @@ export function initEmailModel(sequelize: Sequelize): typeof Email {
       tableName: "email",
     }
   );
-
   return Email;
 }

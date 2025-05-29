@@ -1,10 +1,5 @@
 import { DataTypes, Sequelize, Model } from "sequelize";
-
-interface htmlStructure {
-  id: string;
-  type: string;
-  content: string;
-}
+import { htmlStructure } from "../dto/html.dto";
 
 export class html extends Model<htmlStructure> implements htmlStructure {
   id!: string;

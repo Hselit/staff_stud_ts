@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
-  const allowedTypes = /html|pdf/;
+  const allowedTypes = /html|pdf|csv/;
   const ext = path.extname(file.originalname).toLowerCase();
 
   if (allowedTypes.test(ext)) {

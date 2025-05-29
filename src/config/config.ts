@@ -1,12 +1,12 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-interface DBConfig {
+interface DbConfig {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
-const config: DBConfig = {
+const config: DbConfig = {
   development: {
     username: process.env.DBUSER,
     password: process.env.DBPASSWORD,

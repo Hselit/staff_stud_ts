@@ -1,9 +1,9 @@
 import express from "express";
 const router = express.Router();
 
-import { AddEmailTemplate, fileToPdf, gethtmlcontent } from "../controller/email.controller";
+import { AddEmailTemplate, fileToPdf, gethtmlcontent } from "../controller/emailController";
 import { addEmailValidator } from "../middleware/mailValidator";
-import { verifyToken } from "../middleware/auth";
+import { verifyToken } from "../middleware/UserAuthentication";
 import upload from "../middleware/fileUpload";
 
 /**

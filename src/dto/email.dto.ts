@@ -19,7 +19,6 @@ export type emailType = {
 export type sendEmail = {
   type: string;
   to: string;
-  from: string;
 };
 
 export interface emailResponse {
