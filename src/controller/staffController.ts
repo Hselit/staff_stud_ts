@@ -18,6 +18,7 @@ import {
   staffResponse,
   staffStudentRequest,
   updateStaffData,
+  updatecount,
 } from "../dto/staff.dto";
 import { EmailData } from "../dto/email.dto";
 import { StaffService } from "../service/staffService";
@@ -29,7 +30,7 @@ const { sequelize } = db;
 export const staffLogin = async function (req: Request, res: Response): Promise<void> {
   try {
     const loginRequest: staffLoginRequest = req.body;
-    const data: StaffBase | null = await StaffService.getStaffByName(loginRequest);
+    const data: StaffBase | null | undefined = await StaffService.getStaffByName(loginRequest);
     if (!data) {
       const response: staffResponse = {
         message: "No Staff fouund with the name",
@@ -68,12 +69,14 @@ export const staffLogin = async function (req: Request, res: Response): Promise<
 // get all staff
 export const getAllStaff = async function (req: Request, res: Response): Promise<void> {
   try {
-    const StaffListResponse: StaffBase[] = await StaffService.getStaffList();
-    if (StaffListResponse.length == 0) {
-      res.status(200).json({ message: "No Staff Found.." } as staffResponse);
-      return;
+    const StaffListResponse: StaffBase[] | undefined = await StaffService.getStaffList();
+    if (StaffListResponse) {
+      if (StaffListResponse.length == 0) {
+        res.status(200).json({ message: "No Staff Found.." } as staffResponse);
+        return;
+      }
+      res.status(200).json(StaffListResponse);
     }
-    res.status(200).json(StaffListResponse);
   } catch (error) {
     console.log(error);
     const response: staffResponse = {
@@ -90,7 +93,7 @@ export const getStaffById = async (req: Request, res: Response): Promise<void> =
     const staffid: staffId = {
       id: Number(req.params.id),
     };
-    const data: StaffBase | null = await StaffService.getStaffById(staffid);
+    const data: StaffBase | null | undefined = await StaffService.getStaffById(staffid);
     if (!data) {
       const response: staffResponse = {
         message: "No staff found with the id",
@@ -143,7 +146,7 @@ export const updateStaff = async (req: Request, res: Response): Promise<void> =>
     };
     const bodydata: updateStaffData = req.body;
 
-    const checkexistdata: StaffBase | null = await StaffService.getStaffById(staffid);
+    const checkexistdata: StaffBase | null | undefined = await StaffService.getStaffById(staffid);
     console.log(checkexistdata);
     if (!checkexistdata) {
       const response: staffResponse = {
@@ -152,18 +155,20 @@ export const updateStaff = async (req: Request, res: Response): Promise<void> =>
       res.status(404).json(response);
       return;
     }
-    const dt = await StaffService.updateStaff(bodydata, staffid);
+    const dt: updatecount | undefined = await StaffService.updateStaff(bodydata, staffid);
     console.log(dt);
-    if (dt[0] === 1) {
-      const response: staffResponse = {
-        message: "Staff updated successfully",
-      };
-      res.status(200).json(response);
-    } else {
-      const response: staffResponse = {
-        message: "No Changes Made",
-      };
-      res.status(400).json(response);
+    if (dt) {
+      if (dt[0] === 1) {
+        const response: staffResponse = {
+          message: "Staff updated successfully",
+        };
+        res.status(200).json(response);
+      } else {
+        const response: staffResponse = {
+          message: "No Changes Made",
+        };
+        res.status(400).json(response);
+      }
     }
   } catch (error) {
     console.log(error);
@@ -181,7 +186,7 @@ export const deleteStaff = async (req: Request, res: Response): Promise<void> =>
     const staffid: staffId = {
       id: Number(req.params.id),
     };
-    const result: StaffDelete | null = await StaffService.getStaffById(staffid);
+    const result: StaffDelete | null | undefined = await StaffService.getStaffById(staffid);
     if (!result) {
       const response: staffResponse = {
         message: "No Staff found with the id",
@@ -207,7 +212,7 @@ export const getStudents = async (req: Request, res: Response): Promise<void> =>
     const staffid: staffId = {
       id: Number(req.params.id),
     };
-    const result: StaffStudentResponse | null = await StaffService.getStaffAndStudent(staffid);
+    const result: StaffStudentResponse | null | undefined = await StaffService.getStaffAndStudent(staffid);
     if (!result) {
       res.status(404).json({ message: "No Students Found for Staff" } as staffResponse);
       return;
@@ -255,15 +260,15 @@ export const bulkInsertFromcsv = async (req: Request, res: Response): Promise<vo
 // export staff data
 export const exportStaffData = async (req: Request, res: Response): Promise<void> => {
   try {
-    const data: StaffBase[] | null = await StaffService.getStaffList();
+    const data: StaffBase[] | null | undefined = await StaffService.getStaffList();
     const fields = ["id", "staffName", "role", "experience", "password"];
     const parser = new Parser({ fields });
-    const csv = parser.parse(data);
-
-    const filepath: string = path.join(__dirname, "../../exports/staffs.csv");
-    fs.writeFileSync(filepath, csv);
-
-    res.download(filepath, "staffs.csv");
+    if (data) {
+      const csv = parser.parse(data);
+      const filepath: string = path.join(__dirname, "../../exports/staffs.csv");
+      fs.writeFileSync(filepath, csv);
+      res.download(filepath, "staffs.csv");
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Error Occured " } as staffResponse);
@@ -274,12 +279,12 @@ export const exportStaffData = async (req: Request, res: Response): Promise<void
 export const forgotpassword = async (req: Request, res: Response): Promise<void> => {
   try {
     const bodydata: emailRequest = req.body;
-    const user: StaffBase | null = await StaffService.getStaffByEmail(bodydata);
+    const user: StaffBase | null | undefined = await StaffService.getStaffByEmail(bodydata);
     // console.log(user);
     if (!user) {
       res.status(404).json({ message: "User Not Found.." } as staffResponse);
     }
-    const mailoptions: EmailData | null = await EmailService.getEmailByType(bodydata);
+    const mailoptions: EmailData | null | undefined = await EmailService.getEmailByType(bodydata);
     console.log(mailoptions);
     if (!mailoptions) {
       res.status(404).json({ message: "No Mail Template found with this type" } as staffResponse);

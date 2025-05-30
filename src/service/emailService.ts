@@ -4,6 +4,10 @@ const { Email } = db;
 
 export class EmailService {
   static async getEmailByType(typedata: emailRequest) {
-    return await Email.findOne({ where: { type: typedata.type } });
+    try {
+      return await Email.findOne({ where: { type: typedata.type } });
+    } catch (err) {
+      console.log("Error ", err);
+    }
   }
 }

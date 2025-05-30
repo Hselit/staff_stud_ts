@@ -19,12 +19,14 @@ import { StudentService } from "../service/studentService";
 // get all student
 export const getStudentList = async function (req: Request, res: Response): Promise<void> {
   try {
-    const studentlist: StudentBase[] | null = await StudentService.getStudentList();
-    if (studentlist.length == 0) {
-      res.status(200).json({ message: "No student Found.." } as studentResponse);
-      return;
+    const studentlist: StudentBase[] | null | undefined = await StudentService.getStudentList();
+    if (studentlist) {
+      if (studentlist.length == 0) {
+        res.status(200).json({ message: "No student Found.." } as studentResponse);
+        return;
+      }
+      res.status(200).json(studentlist);
     }
-    res.status(200).json(studentlist);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal Server Error" } as studentResponse);
@@ -36,7 +38,7 @@ export const getStudentList = async function (req: Request, res: Response): Prom
 export const studentLogin = async function (req: Request, res: Response): Promise<void> {
   try {
     const loginRequest: studentLogData = req.body;
-    const data: StudentBase | null = await StudentService.getStudentByName(loginRequest);
+    const data: StudentBase | null | undefined = await StudentService.getStudentByName(loginRequest);
     if (!data) {
       res.status(400).json({ message: "No Student found with the name" } as studentResponse);
       return;
@@ -66,7 +68,7 @@ export const getStudentById = async (req: Request, res: Response): Promise<void>
     const studentid: studId = {
       id: Number(req.params.id),
     };
-    const data: StudentBase | null = await StudentService.getStudentById(studentid);
+    const data: StudentBase | null | undefined = await StudentService.getStudentById(studentid);
     console.log(data);
     if (!data) {
       res.status(404).json({ message: "No student found with the Id" } as studentResponse);
@@ -107,7 +109,7 @@ export const updateStudent = async (req: Request, res: Response): Promise<void> 
     const { studentName, marks, age, staff_id, password } = req.body;
     const image = req.file ? req.file?.filename : null;
 
-    const checkexistdata: StudentBase | null = await StudentService.getStudentById(studentid);
+    const checkexistdata: StudentBase | null | undefined = await StudentService.getStudentById(studentid);
     // console.log(checkexistdata);
     if (!checkexistdata) {
       res.status(404).json({ message: "Not student found with the id" } as studentResponse);
@@ -119,12 +121,14 @@ export const updateStudent = async (req: Request, res: Response): Promise<void> 
       // console.log("inside image");
       updateData.profile = image;
     }
-    const dt: updatecount = await StudentService.updateStudent(updateData, studentid);
-    if (dt[0] === 1) {
-      res.status(200).json({ message: "student updated successfully" } as studentResponse);
-      return;
+    const dt: updatecount | undefined = await StudentService.updateStudent(updateData, studentid);
+    if (dt) {
+      if (dt[0] === 1) {
+        res.status(200).json({ message: "student updated successfully" } as studentResponse);
+        return;
+      }
+      res.status(400).json({ message: "No changes made" } as studentResponse);
     }
-    res.status(400).json({ message: "No changes made" } as studentResponse);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal Server Error" } as studentResponse);
@@ -138,7 +142,7 @@ export const deleteStudent = async (req: Request, res: Response): Promise<void> 
     const studentid: studId = {
       id: Number(req.params.id),
     };
-    const result: StudentDelete | null = await StudentService.getStudentById(studentid);
+    const result: StudentDelete | null | undefined = await StudentService.getStudentById(studentid);
     if (!result) {
       res.status(404).json({ message: "No student found with the Id" } as studentResponse);
       return;
@@ -158,7 +162,7 @@ export const getStaffs = async (req: Request, res: Response): Promise<void> => {
     const studentid: studId = {
       id: Number(req.params.id),
     };
-    const result: studentStaff | null = await StudentService.getStudentAndStaff(studentid);
+    const result: studentStaff | null | undefined = await StudentService.getStudentAndStaff(studentid);
     if (!result) {
       res.status(404).json({ message: "No Staff Found" } as studentResponse);
       return;
@@ -174,14 +178,16 @@ export const getStaffs = async (req: Request, res: Response): Promise<void> => {
 // export student data
 export const exportStudentData = async (req: Request, res: Response): Promise<void> => {
   try {
-    const studentlist: StudentBase[] = await StudentService.getStudentList();
+    const studentlist: StudentBase[] | undefined = await StudentService.getStudentList();
     const fields: string[] = ["id", "studentName", "marks", "age", "password", "profile", "staff_id"];
     const parser = new Parser({ fields });
-    const csv: string = parser.parse(studentlist);
+    if (studentlist) {
+      const csv: string = parser.parse(studentlist);
 
-    const filepath: string = path.join(__dirname, "../../exports/students.csv");
-    fs.writeFileSync(filepath, csv);
-    res.download(filepath, "students.csv");
+      const filepath: string = path.join(__dirname, "../../exports/students.csv");
+      fs.writeFileSync(filepath, csv);
+      res.download(filepath, "students.csv");
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Error Occured " } as studentResponse);

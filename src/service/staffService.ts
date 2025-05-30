@@ -12,69 +12,109 @@ const { Staff, Student } = db;
 
 export class StaffService {
   static async getStaffList() {
-    return await Staff.findAll();
+    try {
+      return await Staff.findAll();
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   static async getStaffById(sid: staffId) {
-    return await Staff.findByPk(sid.id);
+    try {
+      return await Staff.findByPk(sid.id);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   static async updateStaff(staffData: updateStaffData, sid: staffId) {
-    return await Staff.update(staffData, { where: { id: sid.id } });
+    try {
+      return await Staff.update(staffData, { where: { id: sid.id } });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   static async deleteStaff(sid: staffId) {
-    return await Staff.destroy({ where: { id: sid.id } });
+    try {
+      return await Staff.destroy({ where: { id: sid.id } });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   static async getStaffAndStudent(sid: staffId) {
-    return await Staff.findByPk(sid.id, {
-      include: {
-        model: Student,
-        attributes: ["studentName", "age", "marks"],
-      },
-      attributes: {
-        exclude: ["password"],
-      },
-    });
+    try {
+      return await Staff.findByPk(sid.id, {
+        include: {
+          model: Student,
+          attributes: ["studentName", "age", "marks"],
+        },
+        attributes: {
+          exclude: ["password"],
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   static async getStaffByName(staffData: staffLoginRequest) {
-    return await Staff.findOne({ where: { staffName: staffData.staffName } });
+    try {
+      return await Staff.findOne({ where: { staffName: staffData.staffName } });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   static async addStaff(staffdata: StaffBase) {
-    return await Staff.create(staffdata);
+    try {
+      return await Staff.create(staffdata);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   static async addBulkStaff(staffdata: StaffBase[]) {
-    return await Staff.bulkCreate(staffdata);
+    try {
+      return await Staff.bulkCreate(staffdata);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   static async getStaffByEmail(sdata: emailRequest) {
-    return await Staff.findOne({ where: { email: sdata.email } });
+    try {
+      return await Staff.findOne({ where: { email: sdata.email } });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   static async addStaffAndStudent(t: Transaction, staffstudentdata: staffStudentRequest) {
-    const newStaff: StaffBase = await Staff.create(
-      {
-        email: staffstudentdata.email,
-        experience: staffstudentdata.experience,
-        password: staffstudentdata.password,
-        role: staffstudentdata.role,
-        staffName: staffstudentdata.staffName,
-      },
-      { transaction: t }
-    );
-    await Student.create(
-      {
-        studentName: staffstudentdata.students.studentName,
-        age: staffstudentdata.students.age,
-        marks: staffstudentdata.students.marks,
-        password: staffstudentdata.students.password,
-        staff_id: newStaff.id,
-      },
-      { transaction: t }
-    );
+    try {
+      const newStaff: StaffBase = await Staff.create(
+        {
+          email: staffstudentdata.email,
+          experience: staffstudentdata.experience,
+          password: staffstudentdata.password,
+          role: staffstudentdata.role,
+          staffName: staffstudentdata.staffName,
+        },
+        { transaction: t }
+      );
+      await Student.create(
+        {
+          studentName: staffstudentdata.students.studentName,
+          age: staffstudentdata.students.age,
+          marks: staffstudentdata.students.marks,
+          password: staffstudentdata.students.password,
+          staff_id: newStaff.id,
+        },
+        { transaction: t }
+      );
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
