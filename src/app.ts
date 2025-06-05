@@ -55,7 +55,7 @@ const options: swaggerJsDocs.Options = {
 
 const specs = swaggerJsDocs(options);
 // const swaggerDocs = YAML.load(path.join(__dirname, "../swagger/index.yaml"));
-// console.log(swaggerDocs)
+// console.log(swaggerDocs);
 app.use("/api", swaggerUI.serve, swaggerUI.setup(specs));
 
 app.use("/", indexRouter);

@@ -1,4 +1,4 @@
-/:
+/staff/:
   get:
     tags:
       - Staff
@@ -49,7 +49,7 @@
                 message:
                   type: object
 
-/{id}:
+/staff/{id}:
   get:
     tags:
       - Staff
@@ -108,7 +108,7 @@
                 message:
                   type: object
 
-/stafflogin:
+/staff/stafflogin:
   post:
     tags:
       - Staff

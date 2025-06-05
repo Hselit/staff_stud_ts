@@ -7,6 +7,8 @@ export interface StaffBase {
   email: string;
 }
 
+export type Staffbase = StaffBase | null;
+
 export interface StaffDelete extends StaffBase {
   destroy(): Promise<void>;
 }
